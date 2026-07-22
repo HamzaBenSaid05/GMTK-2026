@@ -9,16 +9,23 @@ public class GMTK2026 : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] {
+			"AIModule",
 			"Core",
 			"CoreUObject",
+			"DeveloperSettings",
 			"Engine",
-			"InputCore",
 			"EnhancedInput",
-			"AIModule",
-			"StateTreeModule",
 			"GameplayStateTreeModule",
-			"UMG",
-			"Slate"
+			"GameplayTags",
+			"InputCore",
+			"LevelSequence",
+			"MotionWarping",
+			"MovieScene",
+			"Niagara",
+			"Slate",
+			"SlateCore",
+			"StateTreeModule",
+			"UMG"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
