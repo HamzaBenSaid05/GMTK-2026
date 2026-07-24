@@ -1,7 +1,7 @@
+#include "SoundSystem/SoundComponent.h"
 #include "GameplayTagContainer.h"
 #include "Components/AudioComponent.h"
 #include "EventProxies/AudioProxySubsystem.h"
-#include "SoundSystem/SoundComponent.h"
 
 USoundBase* USoundComponent::FindSound(FGameplayTag Tag)
 {
