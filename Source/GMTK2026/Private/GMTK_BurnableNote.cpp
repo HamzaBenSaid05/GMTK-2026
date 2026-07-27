@@ -1,8 +1,45 @@
 #include "GMTK_BurnableNote.h"
+#include "GMTK_GameFlowManager.h"
+#include "Kismet/GameplayStatics.h"
 
 AGMTK_BurnableNote::AGMTK_BurnableNote()
 {
-	PrimaryActorTick.bCanEverTick = false; 
+	PrimaryActorTick.bCanEverTick = false;
+
+	WishTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("WishTextComponent"));
+	WishTextComponent->SetupAttachment(RootComponent);
+	WishTextComponent->SetHorizontalAlignment(EHTA_Center);
+	WishTextComponent->SetVerticalAlignment(EVRTA_TextCenter);
+	WishTextComponent->SetVisibility(false); // hidden by default, shown only if bIsPlayerWishNote
+}
+
+void AGMTK_BurnableNote::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (WishTextComponent && RootComponent && WishTextComponent->GetAttachParent() != RootComponent)
+	{
+		WishTextComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	
+	if (bIsPlayerWishNote)
+	{
+		if (UGameInstance* GI = UGameplayStatics::GetGameInstance(this))
+		{
+			if (UGMTK_GameFlowManager* Flow = GI->GetSubsystem<UGMTK_GameFlowManager>())
+			{
+				const FString& WishText = Flow->PlayerWishText;
+
+				if (WishTextComponent)
+				{
+					WishTextComponent->SetVisibility(true);
+					WishTextComponent->SetText(FText::FromString(WishText));
+				}
+
+				OnWishTextSet(WishText);
+			}
+		}
+	}
 }
 
 void AGMTK_BurnableNote::ResetNote()
@@ -20,14 +57,12 @@ void AGMTK_BurnableNote::SetFlameOverlapping(bool bOverlapping, float DeltaTime)
 
 	if (!bOverlapping)
 	{
-		// The flame has moved away before the time: reset the accumulation.
 		CurrentBurnTime = 0.0f;
 		return;
 	}
 
 	if (!bIsCorrectWish)
 	{
-		// Note wrong and burning attempt rejected. We can add some visual feedback here.
 		OnBurnRejected();
 		return;
 	}
