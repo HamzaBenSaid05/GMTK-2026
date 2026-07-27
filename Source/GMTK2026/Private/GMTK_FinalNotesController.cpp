@@ -40,6 +40,7 @@ void AGMTK_FinalNotesController::BeginPlay()
 	if (PlayerNote)
 	{
 		PlayerNote->bIsCorrectWish = true;
+		PlayerNote->SetNoteEnabled(false);
 	}
 }
 
@@ -65,6 +66,10 @@ void AGMTK_FinalNotesController::HandleSceneNoteBurnResult(bool bWasCorrect)
 
 	if (AreAllSceneNotesBurned())
 	{
+		if (PlayerNote)
+		{
+			PlayerNote->SetNoteEnabled(true);
+		}
 		OnAllSceneNotesCorrect();
 	}
 }

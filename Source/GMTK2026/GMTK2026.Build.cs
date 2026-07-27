@@ -26,7 +26,8 @@ public class GMTK2026 : ModuleRules
 			"SlateCore",
 			"StateTreeModule",
 			"UMG", 
-			"GameplayTags"
+			"GameplayTags",
+			"Paper2D"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

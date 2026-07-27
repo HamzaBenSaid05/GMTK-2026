@@ -5,7 +5,8 @@
 AGMTK_BurnableNote::AGMTK_BurnableNote()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+	SpriteComponent = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
+	SetRootComponent(SpriteComponent);
 	WishTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("WishTextComponent"));
 	WishTextComponent->SetupAttachment(RootComponent);
 	WishTextComponent->SetHorizontalAlignment(EHTA_Center);
@@ -46,6 +47,12 @@ void AGMTK_BurnableNote::ResetNote()
 {
 	bIsBurned = false;
 	CurrentBurnTime = 0.0f;
+}
+
+void AGMTK_BurnableNote::SetNoteEnabled(bool bEnabled)
+{
+	SetActorHiddenInGame(!bEnabled);
+	SetActorEnableCollision(bEnabled);
 }
 
 void AGMTK_BurnableNote::SetFlameOverlapping(bool bOverlapping, float DeltaTime)

@@ -4,6 +4,7 @@
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "Components/TextRenderComponent.h"
+#include "PaperSpriteComponent.h"
 #include "GMTK_BurnableNote.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoteBurnResult, bool, bWasCorrect);
@@ -15,6 +16,10 @@ class AGMTK_BurnableNote : public AActor
 
 public:
 	AGMTK_BurnableNote();
+
+	// Root
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UPaperSpriteComponent> SpriteComponent ;
 
 	// Scene desire id
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Note")
@@ -52,6 +57,9 @@ public:
 	// Reset Note to "not burned" state for retry.
 	UFUNCTION(BlueprintCallable, Category = "Note")
 	void ResetNote();
+	
+	UFUNCTION(BlueprintCallable, Category = "Note")
+	void SetNoteEnabled(bool bEnabled);
 
 protected:
 	virtual void BeginPlay() override;
