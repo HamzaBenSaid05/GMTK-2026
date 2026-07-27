@@ -56,6 +56,7 @@ void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
 	{
 		bIsCompleted = true;
 		OnSceneCompleted.Broadcast();
+		UE_LOG(LogTemp, Log, TEXT("Scene Completed"));
 	}
 }
 

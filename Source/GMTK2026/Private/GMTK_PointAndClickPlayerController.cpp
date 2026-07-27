@@ -97,7 +97,6 @@ AGMTK_InteractableActor* AGMTK_PointAndClickPlayerController::TraceUnderCursor()
 
 	if (bHit && Hit.GetActor())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"),*GetNameSafe(Hit.GetActor()));
 		return Cast<AGMTK_InteractableActor>(Hit.GetActor());
 	}
 	return nullptr;

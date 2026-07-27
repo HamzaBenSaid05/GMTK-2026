@@ -19,25 +19,24 @@ void AGMTK_GameMode::BeginPlay()
 	Super::BeginPlay();
 	ActivateGameCamera();
 	
-
 	// The list is copied into the subsystem ONLY if it is still empty
 	UGMTK_GameFlowManager* Flow = GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
 	Flow->OnNewLevelToLoad.AddDynamic(this, &AGMTK_GameMode::LoadLevelByIndex);
 
 	// Bind on scene completed events for all scene controllers in the level
-	if (Flow->Scenes.IsValidIndex(Flow->CurrentLevelIndex))
-	{
-		Flow->Scenes[Flow->CurrentLevelIndex]->OnSceneCompleted.AddDynamic(
-			this,
-			&AGMTK_GameMode::HandleCurrentSceneCompleted);
-	}
-	else
-	{
+	//if (Flow->Scenes.IsValidIndex(Flow->CurrentLevelIndex))
+	//{
+	//	Flow->Scenes[Flow->CurrentLevelIndex]->OnSceneCompleted.AddDynamic(
+	//		this,
+	//		&AGMTK_GameMode::HandleCurrentSceneCompleted);
+	//}
+	//else
+	//{
 		UE_LOG(LogTemp, Error,
 			TEXT("Invalid Scene Index %d (Num=%d)"),
 			Flow->CurrentLevelIndex,
 			Flow->Scenes.Num());
-	}
+	//}
 
 	
 	// Start the delay timer
