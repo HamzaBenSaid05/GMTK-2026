@@ -35,9 +35,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PointAndClick",
 		meta = (EditCondition = "bDrawDebugTrace"))
 	float DebugDrawDuration = 2.0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PointAndClick")
+	TSubclassOf<UUserWidget> HoverWidgetClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "PointAndClick")
 	TObjectPtr<AGMTK_InteractableActor> HoveredInteractable;
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +56,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "PointAndClick")
 	void OnHoveredInteractableChanged(AGMTK_InteractableActor* NewHovered, AGMTK_InteractableActor* OldHovered);
 
+	void ShowHoverImage();
+	void HideHoverImage();
+	
 private:
 	AGMTK_InteractableActor* TraceUnderCursor() const;
+	
+	UPROPERTY()
+	UUserWidget* HoverWidget;
 };

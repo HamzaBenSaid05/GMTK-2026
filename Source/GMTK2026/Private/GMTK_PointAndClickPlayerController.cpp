@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
+#include "Blueprint/UserWidget.h"
 
 AGMTK_PointAndClickPlayerController::AGMTK_PointAndClickPlayerController()
 {
@@ -36,6 +37,18 @@ void AGMTK_PointAndClickPlayerController::BeginPlay()
 			{
 				Subsystem->AddMappingContext(DefaultMappingContext, MappingContextPriority);
 			}
+		}
+	}
+
+	// Create the hover widget and add it to the viewport, but keep it hidden initially
+	if(HoverWidgetClass)
+	{
+		HoverWidget = CreateWidget<UUserWidget>(this, HoverWidgetClass);
+
+		if(HoverWidget)
+		{
+			HoverWidget->AddToViewport();
+			HoverWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -82,7 +95,7 @@ AGMTK_InteractableActor* AGMTK_PointAndClickPlayerController::TraceUnderCursor()
 		}
 	}
 
-	if (bHit && Hit.GetActor() && Hit.GetActor() != HoveredInteractable)
+	if (bHit && Hit.GetActor())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"),*GetNameSafe(Hit.GetActor()));
 		return Cast<AGMTK_InteractableActor>(Hit.GetActor());
@@ -101,6 +114,30 @@ void AGMTK_PointAndClickPlayerController::PlayerTick(float DeltaTime)
 		AGMTK_InteractableActor* Old = HoveredInteractable;
 		HoveredInteractable = CurrentHover;
 		OnHoveredInteractableChanged(CurrentHover, Old);
+		if(HoverWidget)
+		{
+			if(CurrentHover)
+			{
+				float MouseX;
+				float MouseY;
+
+				GetMousePosition(MouseX, MouseY);
+
+				HoverWidget->SetPositionInViewport(
+					FVector2D(MouseX, MouseY),
+					true
+				);
+
+
+				HoverWidget->SetVisibility(
+					ESlateVisibility::Visible
+				);
+			}
+			else
+			{
+				HoverWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
 	}
 }
 
@@ -110,5 +147,27 @@ void AGMTK_PointAndClickPlayerController::HandleLeftClick()
 	if (AGMTK_InteractableActor* Target = TraceUnderCursor())
 	{
 		Target->Interact();
+	}
+}
+
+void AGMTK_PointAndClickPlayerController::ShowHoverImage()
+{
+	if(!HoverWidget && HoverWidgetClass)
+	{
+		HoverWidget = CreateWidget<UUserWidget>(
+			this,
+			HoverWidgetClass
+		);
+
+		HoverWidget->AddToViewport();
+	}
+}
+
+void AGMTK_PointAndClickPlayerController::HideHoverImage()
+{
+	if(HoverWidget)
+	{
+		HoverWidget->RemoveFromParent();
+		HoverWidget = nullptr;
 	}
 }

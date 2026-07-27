@@ -1,9 +1,3 @@
-// WishInputWidget.h
-// Classe base C++ per il widget UMG del "biglietto bianco vuoto" iniziale.
-// In editor crei un Widget Blueprint che eredita da questa classe, ci metti
-// un EditableTextBox chiamato "WishTextBox" (o binda OnTextChanged manualmente)
-// e un bottone "Conferma" collegato a SubmitWish.
-
 #pragma once
 
 #include "CoreMinimal.h"

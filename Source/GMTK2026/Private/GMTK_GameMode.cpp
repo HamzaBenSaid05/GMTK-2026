@@ -25,8 +25,21 @@ void AGMTK_GameMode::BeginPlay()
 	Flow->OnNewLevelToLoad.AddDynamic(this, &AGMTK_GameMode::LoadLevelByIndex);
 
 	// Bind on scene completed events for all scene controllers in the level
-	Flow->Scenes[Flow->CurrentLevelIndex]->OnSceneCompleted.AddDynamic(this, &AGMTK_GameMode::HandleCurrentSceneCompleted);
+	if (Flow->Scenes.IsValidIndex(Flow->CurrentLevelIndex))
+	{
+		Flow->Scenes[Flow->CurrentLevelIndex]->OnSceneCompleted.AddDynamic(
+			this,
+			&AGMTK_GameMode::HandleCurrentSceneCompleted);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("Invalid Scene Index %d (Num=%d)"),
+			Flow->CurrentLevelIndex,
+			Flow->Scenes.Num());
+	}
 
+	
 	// Start the delay timer
 	OnDelayStart.Broadcast();
 

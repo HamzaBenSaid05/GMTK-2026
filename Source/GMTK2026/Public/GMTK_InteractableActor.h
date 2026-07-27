@@ -1,8 +1,3 @@
-// InteractableActor.h
-// Base per QUALSIASI oggetto interagibile in scena (coperta, accendino, scopa, secchio, ...).
-// L'oggetto non conosce la soluzione del puzzle: manda solo il suo ActionID
-// al SceneController, che decide cosa succede in base alla tabella di transizioni.
-
 #pragma once
 
 #include "CoreMinimal.h"

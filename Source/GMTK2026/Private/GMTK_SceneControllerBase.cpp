@@ -27,7 +27,7 @@ void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
 {
 	UE_LOG(LogTemp, Log, TEXT("SceneControllerBase::HandleInteraction: ActionID = %s"), *ActionID.ToString());
 	
-	if (!SceneData || bIsCompleted) { return; }
+	if (!SceneData || bIsCompleted || ActionTags.HasTagExact(ActionID)) { return; }
 
 	FSceneTransitionRow Row;
 	if (!SceneData->FindTransition(CurrentState, ActionID, Row))
@@ -38,7 +38,8 @@ void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
 
 	CurrentState = Row.ToState;
 
-	// Notify linked event 
+	// Notify linked event
+	ActionTags.AddTag(ActionID);
 	OnStateChanged.Broadcast(Row.EventTag);
 
 	if (Row.bIsFailure) { OnSceneFailed.Broadcast(Row.EventTag); }

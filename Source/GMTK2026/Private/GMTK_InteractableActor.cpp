@@ -11,4 +11,10 @@ void AGMTK_InteractableActor::BeginPlay()
 	                                                   UGameplayStatics::GetActorOfClass(GetWorld(), AGMTK_SceneControllerBase::StaticClass()));
 }
 
-void AGMTK_InteractableActor::Interact() { if (OwningSceneController && ActionID.IsValid()) { OwningSceneController->HandleInteraction(ActionID); } }
+void AGMTK_InteractableActor::Interact()
+{
+	if (OwningSceneController && ActionID.IsValid())
+	{
+		OwningSceneController->HandleInteraction(ActionID);
+	}
+}
