@@ -118,17 +118,14 @@ void AGMTK_PointAndClickPlayerController::PlayerTick(float DeltaTime)
 		{
 			if(CurrentHover)
 			{
-				float MouseX;
-				float MouseY;
+				FVector WorldLocation = CurrentHover->HoverPoint->GetComponentLocation();
 
-				GetMousePosition(MouseX, MouseY);
+				FVector2D ScreenPosition;
 
-				HoverWidget->SetPositionInViewport(
-					FVector2D(MouseX, MouseY),
-					true
-				);
+				ProjectWorldLocationToScreen(WorldLocation, ScreenPosition);
 
-
+				HoverWidget->SetPositionInViewport(ScreenPosition, true);
+				
 				HoverWidget->SetVisibility(
 					ESlateVisibility::Visible
 				);

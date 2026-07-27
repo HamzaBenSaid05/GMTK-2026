@@ -37,6 +37,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Timer")
 	float TimerLength = 10.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Timer")
+	float DelayFinish = 5.0f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game|Levels")
 	TArray<TSoftObjectPtr<UWorld>> LevelSequence;
 

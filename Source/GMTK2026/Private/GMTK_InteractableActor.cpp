@@ -2,7 +2,15 @@
 #include "GMTK_SceneControllerBase.h"
 #include "Kismet/GameplayStatics.h"
 
-AGMTK_InteractableActor::AGMTK_InteractableActor() { PrimaryActorTick.bCanEverTick = false; }
+AGMTK_InteractableActor::AGMTK_InteractableActor()
+{
+	PrimaryActorTick.bCanEverTick = false;
+	HoverMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HoverMesh"));
+	SetRootComponent(HoverMesh);
+	HoverPoint = CreateDefaultSubobject<USceneComponent>(TEXT("HoverPoint"));
+	HoverPoint->SetupAttachment(RootComponent);
+	HoverPoint->SetRelativeLocation(FVector(0,0,100));
+}
 
 void AGMTK_InteractableActor::BeginPlay()
 {

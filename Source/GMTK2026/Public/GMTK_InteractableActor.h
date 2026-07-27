@@ -25,6 +25,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interactable")
 	void Interact();
 
+	UPROPERTY(EditAnywhere)
+	USceneComponent* HoverPoint;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* HoverMesh;
+
 protected:
 	virtual void BeginPlay() override;
 };

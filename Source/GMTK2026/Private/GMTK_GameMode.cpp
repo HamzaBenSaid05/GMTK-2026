@@ -124,10 +124,19 @@ void AGMTK_GameMode::UpdateMainTimer()
 		OnTimerUpdate.Broadcast(0);
 		OnTimerFinish.Broadcast();
 
-		if (UGMTK_GameFlowManager* Flow = GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>())
-		{
-			Flow->AdvanceToNextLevel();
-		}
+		FTimerHandle DelayFinishHandle;
+		GetWorldTimerManager().SetTimer(
+			DelayFinishHandle,
+			[this]()
+			{
+				if (UGMTK_GameFlowManager* Flow = GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>())
+				{
+					Flow->AdvanceToNextLevel();
+				}
+			},
+			DelayFinish, 
+			false
+		);
 	}
 }
 

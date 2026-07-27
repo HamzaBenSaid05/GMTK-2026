@@ -41,11 +41,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Flow|Levels")
 	void AdvanceToNextLevel();
 	
-	// Register the text written by the player on the initial ticket.
+	// Register the text written by the player on the initial Note.
 	UFUNCTION(BlueprintCallable, Category = "Flow")
 	void SetPlayerWish(const FString& WishText);
 
-	// Called when all tickets have received a burn attempt: checks if they are ALL correct.
+	// Called when all Notes have received a burn attempt: checks if they are ALL correct.
 	UFUNCTION(BlueprintCallable, Category = "Flow")
 	bool AreAllScenesCompleted() const;
 

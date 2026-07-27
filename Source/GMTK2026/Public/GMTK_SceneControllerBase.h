@@ -31,6 +31,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scene")
 	TArray<TSoftObjectPtr<ULevel>> LevelsToLoad;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scene")
+	bool bSceneLocked = false;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Scene")
 	FOnSceneStateChanged OnStateChanged;
@@ -52,6 +55,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void PlaySequenceForEvent(FGameplayTag EventTag);
+	
+	UPROPERTY()
+	TObjectPtr<class ULevelSequencePlayer> ActiveSequencePlayer;
+
 private:
 	FGameplayTagContainer ActionTags;
+	
 };

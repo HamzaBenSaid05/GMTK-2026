@@ -24,7 +24,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
 	TArray<FSceneTransitionRow> Transitions;
 
-	// Name of the ticket/wish associated with this scene 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
+	TMap<FGameplayTag, TSoftObjectPtr<class ULevelSequence>> EventSequences;
+
+	// Name of the Note/wish associated with this scene 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene|Wish")
 	FGameplayTag WishID;
 

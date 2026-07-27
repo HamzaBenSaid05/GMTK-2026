@@ -32,4 +32,8 @@ struct FSceneTransitionRow
 	// If true this transition completes the scene successfully
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transition")
 	bool bIsSuccess = false;
+
+	// If true this transition ends the scene and moves to the next level
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Transition")
+	bool bEndsScene = false;
 };
