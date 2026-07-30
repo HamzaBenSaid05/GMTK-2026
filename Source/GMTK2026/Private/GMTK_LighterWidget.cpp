@@ -1,15 +1,25 @@
 #include "GMTK_LighterWidget.h"
 #include "GMTK_BurnableNoteWidget.h"
 #include "Components/Image.h"
-#include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/PanelWidget.h"
 #include "Framework/Application/SlateApplication.h"
 
+
+void UGMTK_LighterWidget::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+	
+	if (UCanvasPanelSlot* FlameSlot = Cast<UCanvasPanelSlot>(FlameImage->Slot))
+	{
+		FlameSlot->SetPosition(FlameOffset);
+	}
+}
+
+
 void UGMTK_LighterWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	CurrentFlameLocalPosition = FlameSocketOffset;
 
 	SetVisibility(ESlateVisibility::HitTestInvisible);
 
@@ -67,16 +77,6 @@ void UGMTK_LighterWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 			LocalPosInParent.Y = FMath::Clamp(LocalPosInParent.Y, 0.0f, ParentSize.Y);
 
 			MySlot->SetPosition(LocalPosInParent);
-		}
-	}
-
-	CurrentFlameLocalPosition = FMath::Vector2DInterpTo(CurrentFlameLocalPosition, FlameSocketOffset, InDeltaTime, FlameLagSpeed);
-
-	if (FlameImage)
-	{
-		if (UCanvasPanelSlot* FlameSlot = Cast<UCanvasPanelSlot>(FlameImage->Slot))
-		{
-			FlameSlot->SetPosition(CurrentFlameLocalPosition);
 		}
 	}
 

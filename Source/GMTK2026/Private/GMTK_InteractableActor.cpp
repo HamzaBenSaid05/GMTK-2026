@@ -5,11 +5,10 @@
 AGMTK_InteractableActor::AGMTK_InteractableActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	HoverMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HoverMesh"));
-	SetRootComponent(HoverMesh);
+	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
+	SetRootComponent(DefaultSceneRoot);
 	HoverPoint = CreateDefaultSubobject<USceneComponent>(TEXT("HoverPoint"));
 	HoverPoint->SetupAttachment(RootComponent);
-	HoverPoint->SetRelativeLocation(FVector(0,0,100));
 }
 
 void AGMTK_InteractableActor::BeginPlay()

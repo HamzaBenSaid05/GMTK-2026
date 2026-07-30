@@ -17,11 +17,7 @@ class GMTK2026_API UGMTK_LighterWidget : public UUserWidget
 public:
 	// Local Offset from the lighter body to the flame socket (in pixels, inside this widget).
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighter")
-	FVector2D FlameSocketOffset = FVector2D(0.0f, -40.0f);
-
-	// Follow speed of the flame to the lighter body. Lower = more elastic/moving.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighter")
-	float FlameLagSpeed = 8.0f;
+	FVector2D FlameOffset  = FVector2D(0.0f, -40.0f);
 
 	// True once the ignition animation has finished and the flame can actually burn notes.
 	UPROPERTY(BlueprintReadOnly, Category = "Lighter")
@@ -43,6 +39,7 @@ public:
 	void OnIgnitionFinished();
 
 protected:
+	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 

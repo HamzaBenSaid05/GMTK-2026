@@ -29,7 +29,7 @@ public:
 	USceneComponent* HoverPoint;
 
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* HoverMesh;
+	USceneComponent* DefaultSceneRoot;
 
 protected:
 	virtual void BeginPlay() override;

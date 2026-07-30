@@ -14,16 +14,16 @@ struct FSceneProgress
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Scene")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
 	TObjectPtr<UGMTK_SceneDefinitionAsset> SceneData;
 
-	UPROPERTY(EditAnywhere, Category = "Scene")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
 	FGameplayTag CurrentState;
 
-	UPROPERTY(EditAnywhere, Category = "Scene")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
 	bool bIsCompleted = false;
 
-	UPROPERTY(EditAnywhere, Category = "Scene")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
 	bool bSceneLocked = false;
 	
 	// Reset Scenes when the player fails and wants to retry.
