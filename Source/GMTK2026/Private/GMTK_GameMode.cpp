@@ -35,7 +35,7 @@ void AGMTK_GameMode::BeginPlay()
 		UE_LOG(LogTemp, Error,
 			TEXT("Invalid Scene Index %d (Num=%d)"),
 			Flow->CurrentLevelIndex,
-			Flow->Scenes.Num());
+			Flow->ScenesData.Num());
 	//}
 
 	

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GMTK_SceneControllerBase.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GMTK_GameFlowManager.generated.h"
 
@@ -16,9 +17,9 @@ class GMTK2026_API UGMTK_GameFlowManager : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	// All the scenes
-	UPROPERTY(BlueprintReadWrite, Category = "Flow")
-	TArray<TObjectPtr<AGMTK_SceneControllerBase>> Scenes;
+	// All the scenes data
+	UPROPERTY(BlueprintReadOnly, Category = "Flow")
+	TArray<FSceneProgress> ScenesData;
 
 	// Player start desire
 	UPROPERTY(BlueprintReadWrite, Category = "Flow")
@@ -55,5 +56,8 @@ public:
 
 	// Register scene
 	UFUNCTION(BlueprintCallable, Category = "Flow")
-	void RegisterScene(AGMTK_SceneControllerBase* Scene);
+	void RegisterScene(const FSceneProgress SceneProgress);
+
+	UFUNCTION(BlueprintCallable, Category = "Flow")
+	void SetSceneCompleted(FGameplayTag WishID, bool bWasCorrect);
 };
