@@ -11,50 +11,46 @@ AGMTK_SceneControllerBase::AGMTK_SceneControllerBase() { PrimaryActorTick.bCanEv
 void AGMTK_SceneControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
-	ResetScene();
+	SceneProgress.ResetScene();
 	UGMTK_GameFlowManager* GameFlowManager =
 		GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
-	if (GameFlowManager) { GameFlowManager->RegisterScene(this); }
-}
-
-void AGMTK_SceneControllerBase::ResetScene()
-{
-	bIsCompleted = false;
-	bSceneLocked = false;
-	CurrentState = SceneData ? SceneData->StartState : FGameplayTag();
+	if (GameFlowManager) { GameFlowManager->RegisterScene(SceneProgress); }
 }
 
 void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
 {
 	UE_LOG(LogTemp, Log, TEXT("SceneControllerBase::HandleInteraction: ActionID = %s"), *ActionID.ToString());
 
-	if (!SceneData || bIsCompleted || ActionTags.HasTagExact(ActionID)) { return; }
+	if (!SceneProgress.SceneData || SceneProgress.bIsCompleted || ActionTags.HasTagExact(ActionID)) { return; }
 
 	FSceneTransitionRow Row;
-	if (!SceneData->FindTransition(CurrentState, ActionID, Row))
+	if (!SceneProgress.SceneData->FindTransition(SceneProgress.CurrentState, ActionID, Row))
 	{
 		// No transition defined for this state+action
 		return;
 	}
 
-	CurrentState = Row.ToState;
+	SceneProgress.CurrentState = Row.ToState;
 
 	// Notify linked event
 	OnStateChanged.Broadcast(Row.EventTag);
 
 	// Play sequence if defined for this event
 	PlaySequenceForEvent(Row.EventTag);
-	
+
 	// Add tag to prevent repeated actions
 	ActionTags.AddTag(ActionID);
 
 	if (Row.bIsFailure) { OnSceneFailed.Broadcast(Row.EventTag); }
 
-	if (Row.bEndsScene) { bSceneLocked = true; }
+	if (Row.bEndsScene) { SceneProgress.bSceneLocked = true; }
 
-	if (Row.bIsSuccess || CurrentState == SceneData->SuccessState)
+	if (Row.bIsSuccess || SceneProgress.CurrentState == SceneProgress.SceneData->SuccessState)
 	{
-		bIsCompleted = true;
+		SceneProgress.bIsCompleted = true;
+		UGMTK_GameFlowManager* GameFlowManager =
+			GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
+		if (GameFlowManager) { GameFlowManager->SetSceneCompleted(SceneProgress.SceneData->WishID, SceneProgress.bIsCompleted); }
 		OnSceneCompleted.Broadcast();
 		UE_LOG(LogTemp, Log, TEXT("Scene Completed"));
 	}
@@ -62,9 +58,9 @@ void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
 
 void AGMTK_SceneControllerBase::PlaySequenceForEvent(FGameplayTag EventTag)
 {
-	if (!SceneData || !EventTag.IsValid()) { return; }
+	if (!SceneProgress.SceneData || !EventTag.IsValid()) { return; }
 
-	const TSoftObjectPtr<ULevelSequence>* SequencePtr = SceneData->EventSequences.Find(EventTag);
+	const TSoftObjectPtr<ULevelSequence>* SequencePtr = SceneProgress.SceneData->EventSequences.Find(EventTag);
 	if (!SequencePtr) { return; }
 
 	ULevelSequence* Sequence = SequencePtr->LoadSynchronous();
@@ -80,15 +76,15 @@ void AGMTK_SceneControllerBase::PlaySequenceForEvent(FGameplayTag EventTag)
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				FColor::Yellow,
-				FString::Printf(
-					TEXT("SceneControllerBase::PlaySequenceForEvent %s: Playing sequence %s"),
-					*EventTag.ToString(),
-					*Sequence->GetName()
-				)
-			);
+			                                 -1,
+			                                 15.0f,
+			                                 FColor::Yellow,
+			                                 FString::Printf(
+			                                                 TEXT("SceneControllerBase::PlaySequenceForEvent %s: Playing sequence %s"),
+			                                                 *EventTag.ToString(),
+			                                                 *Sequence->GetName()
+			                                                )
+			                                );
 		}
 		ActiveSequencePlayer->Play();
 	}

@@ -2,14 +2,38 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GMTK_SceneData.h"
+#include "GMTK_SceneDefinitionAsset.h"
 #include "GMTK_SceneControllerBase.generated.h"
-
-class UGMTK_SceneDefinitionAsset;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSceneStateChanged, FGameplayTag, EventTag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSceneCompleted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSceneFailed, FGameplayTag, FailEventTag);
+
+USTRUCT(BlueprintType)
+struct FSceneProgress
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Scene")
+	TObjectPtr<UGMTK_SceneDefinitionAsset> SceneData;
+
+	UPROPERTY(EditAnywhere, Category = "Scene")
+	FGameplayTag CurrentState;
+
+	UPROPERTY(EditAnywhere, Category = "Scene")
+	bool bIsCompleted = false;
+
+	UPROPERTY(EditAnywhere, Category = "Scene")
+	bool bSceneLocked = false;
+	
+	// Reset Scenes when the player fails and wants to retry.
+	void ResetScene()
+	{
+		bIsCompleted = false;
+		bSceneLocked = false;
+		CurrentState = SceneData ? SceneData->StartState : FGameplayTag();
+	}
+};
 
 UCLASS(Blueprintable)
 class GMTK2026_API AGMTK_SceneControllerBase : public AActor
@@ -19,22 +43,12 @@ class GMTK2026_API AGMTK_SceneControllerBase : public AActor
 public:
 	AGMTK_SceneControllerBase();
 
-	// Define the states and transitions for this scene
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
-	TObjectPtr<UGMTK_SceneDefinitionAsset> SceneData;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scene")
-	FGameplayTag CurrentState;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Scene")
-	bool bIsCompleted = false;
+	FSceneProgress SceneProgress;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Scene")
 	TArray<TSoftObjectPtr<ULevel>> LevelsToLoad;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Scene")
-	bool bSceneLocked = false;
-	
 	UPROPERTY(BlueprintAssignable, Category = "Scene")
 	FOnSceneStateChanged OnStateChanged;
 
@@ -43,14 +57,10 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Scene")
 	FOnSceneFailed OnSceneFailed;
-
+	
 	// Called when the player interacts with an object
 	UFUNCTION(BlueprintCallable, Category = "Scene")
 	void HandleInteraction(FGameplayTag ActionID);
-
-	// Reset Scenes when the player fails and wants to retry.
-	UFUNCTION(BlueprintCallable, Category = "Scene")
-	void ResetScene();
 
 protected:
 	virtual void BeginPlay() override;
@@ -62,5 +72,4 @@ protected:
 
 private:
 	FGameplayTagContainer ActionTags;
-	
 };
