@@ -14,7 +14,7 @@ void UGMTK_GameFlowManager::ResetGameProgress()
 void UGMTK_GameFlowManager::AdvanceToNextLevel()
 {
 	CurrentLevelIndex++;
-	OnNewLevelToLoad.Broadcast(CurrentLevelIndex);
+	OnNewLevelToLoad.Broadcast(0);
 }
 
 void UGMTK_GameFlowManager::SetPlayerWish(const FString& WishText)
@@ -68,30 +68,11 @@ bool UGMTK_GameFlowManager::AreAllScenesCompleted() const
 
 void UGMTK_GameFlowManager::RetryFailedScenes()
 {
-	UGMTK_GameSettings* Settings = GetMutableDefault<UGMTK_GameSettings>();
-
-	UWorld* CurrentWorld = GetWorld();
-	if (!CurrentWorld) { return; }
-
-	FSoftObjectPath CurrentLevelPath(CurrentWorld);
-	
-	for (FSceneProgress Scene : ScenesData)
+	for (FSceneProgress& Scene : ScenesData)
 	{
 		if (!Scene.bIsCompleted)
 		{
 			Scene.ResetScene();
 		}
-		for (int32 i = Settings->Levels.Num() - 1; i >= 0; --i)
-		{
-			if (Settings->Levels[i].ToSoftObjectPath() == CurrentLevelPath)
-			{
-				Settings->Levels.RemoveAt(i);
-				UGMTK_GameFlowManager* GameFlowManager =
-					GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
-				if (GameFlowManager) { GameFlowManager->UnRegisterScene(Scene.SceneData->WishID); }
-				break;
-			}
-		}
 	}
-	Settings->SaveConfig();
 }

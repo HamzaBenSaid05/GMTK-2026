@@ -33,6 +33,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Flow|Levels")
 	int32 CurrentLevelIndex = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Flow|Levels")
+	TArray<TSoftObjectPtr<UWorld>> FailedLevels;
 
 	// Reset the game progress: clears the player wish and resets all scenes.
 	UFUNCTION(BlueprintCallable, Category = "Flow|Levels")

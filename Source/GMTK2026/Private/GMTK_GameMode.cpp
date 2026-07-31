@@ -219,14 +219,25 @@ void AGMTK_GameMode::HandleCurrentSceneCompleted()
 
 void AGMTK_GameMode::LoadLevelByIndex(int32 LevelIndex)
 {
-	PendingLevelIndex = LevelIndex;
-	
-	if (!LoadingScreenWidget)
+	if (!Settings)
 	{
-		// No loading screen configured: load immediately as before.
-		OpenPendingLevel();
 		return;
 	}
-	LoadingScreenWidget->OnFadeInComplete.AddUniqueDynamic(this, &AGMTK_GameMode::HandleFadeInComplete);
-	LoadingScreenWidget->FadeIn();
+
+	if (Settings->Levels.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No more levels. Loading final."));
+		
+		UGameplayStatics::OpenLevelBySoftObjectPtr(
+			GetWorld(),
+			Settings->FinalLevel
+		);
+
+		return;
+	}
+
+	UGameplayStatics::OpenLevelBySoftObjectPtr(
+		GetWorld(),
+		Settings->Levels[0]
+	);
 }
