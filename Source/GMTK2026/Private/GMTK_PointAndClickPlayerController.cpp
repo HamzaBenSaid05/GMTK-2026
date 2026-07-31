@@ -4,8 +4,10 @@
 #include "DrawDebugHelpers.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GMTK_GameMode.h"
 #include "InputAction.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 AGMTK_PointAndClickPlayerController::AGMTK_PointAndClickPlayerController()
 {
@@ -50,6 +52,17 @@ void AGMTK_PointAndClickPlayerController::BeginPlay()
 			HoverWidget->AddToViewport();
 			HoverWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
+	}
+
+	// Bind to game mode timer event to toggle input
+	if (AGMTK_GameMode* GameMode = Cast<AGMTK_GameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		// Disable Input
+		GameMode->OnDelayStart.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnDelayStart);
+		// Enable Input
+		GameMode->OnTimerStart.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnTimerStart);
+		// Disable Input
+		GameMode->OnTimerFinish.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnTimerFinish);
 	}
 }
 
@@ -102,10 +115,26 @@ AGMTK_InteractableActor* AGMTK_PointAndClickPlayerController::TraceUnderCursor()
 	return nullptr;
 }
 
+void AGMTK_PointAndClickPlayerController::TogglePlayerControllerInput(bool bIsEnabled) 
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (PC)
+	{
+		bInputEnabled = bIsEnabled;
+		PC->SetIgnoreMoveInput(!bIsEnabled);
+		PC->SetIgnoreLookInput(!bIsEnabled);
+		PC->bShowMouseCursor = bIsEnabled;
+	}
+}
+
 void AGMTK_PointAndClickPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
-
+	// If input is disabled, skip the hover detection and interaction logic
+	if (!bInputEnabled)
+	{
+		return;
+	}
 	// Update over every frame
 	AGMTK_InteractableActor* CurrentHover = TraceUnderCursor();
 	if (CurrentHover != HoveredInteractable)

@@ -1,5 +1,6 @@
 #include "GMTK_GameFlowManager.h"
 
+#include "GMTK_GameSettings.h"
 #include "GMTK_SceneControllerBase.h"
 
 void UGMTK_GameFlowManager::ResetGameProgress()
@@ -24,6 +25,17 @@ void UGMTK_GameFlowManager::SetPlayerWish(const FString& WishText)
 void UGMTK_GameFlowManager::RegisterScene(const FSceneProgress SceneProgress)
 {
 	ScenesData.Add(SceneProgress); 
+}
+
+void UGMTK_GameFlowManager::UnRegisterScene(FGameplayTag WishID)
+{
+	ScenesData.RemoveAll(
+		[WishID](const FSceneProgress& Scene)
+		{
+			return Scene.SceneData &&
+				   Scene.SceneData->WishID == WishID;
+		}
+	);
 }
 
 void UGMTK_GameFlowManager::SetSceneCompleted(FGameplayTag WishID, bool bWasCorrect)
@@ -56,11 +68,30 @@ bool UGMTK_GameFlowManager::AreAllScenesCompleted() const
 
 void UGMTK_GameFlowManager::RetryFailedScenes()
 {
+	UGMTK_GameSettings* Settings = GetMutableDefault<UGMTK_GameSettings>();
+
+	UWorld* CurrentWorld = GetWorld();
+	if (!CurrentWorld) { return; }
+
+	FSoftObjectPath CurrentLevelPath(CurrentWorld);
+	
 	for (FSceneProgress Scene : ScenesData)
 	{
 		if (!Scene.bIsCompleted)
 		{
 			Scene.ResetScene();
 		}
+		for (int32 i = Settings->Levels.Num() - 1; i >= 0; --i)
+		{
+			if (Settings->Levels[i].ToSoftObjectPath() == CurrentLevelPath)
+			{
+				Settings->Levels.RemoveAt(i);
+				UGMTK_GameFlowManager* GameFlowManager =
+					GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
+				if (GameFlowManager) { GameFlowManager->UnRegisterScene(Scene.SceneData->WishID); }
+				break;
+			}
+		}
 	}
+	Settings->SaveConfig();
 }

@@ -57,6 +57,8 @@ public:
 	// Register scene
 	UFUNCTION(BlueprintCallable, Category = "Flow")
 	void RegisterScene(const FSceneProgress SceneProgress);
+	UFUNCTION(BlueprintCallable, Category = "Flow")
+	void UnRegisterScene(FGameplayTag WishID);
 
 	UFUNCTION(BlueprintCallable, Category = "Flow")
 	void SetSceneCompleted(FGameplayTag WishID, bool bWasCorrect);

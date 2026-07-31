@@ -72,4 +72,7 @@ protected:
 
 private:
 	FGameplayTagContainer ActionTags;
+
+	UFUNCTION()
+	void UpdateSceneGameConfig();
 };

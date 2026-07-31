@@ -1,12 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GMTK_GameSettings.h"
+#include "GMTK_LoadingScreenWidget.h"
 #include "GameFramework/GameMode.h"
 #include "GMTK_GameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDelayStart);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDelayFinish);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStart);
 
@@ -21,7 +21,7 @@ class GMTK2026_API AGMTK_GameMode : public AGameMode
 
 public:
 	AGMTK_GameMode();
-
+	
 	// Camera Tag
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game|Camera")
 	FName GameCameraTag = FName(TEXT("GameCamera"));
@@ -40,24 +40,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Timer")
 	float DelayFinish = 5.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game|Levels")
-	TArray<TSoftObjectPtr<UWorld>> LevelSequence;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game|Levels")
-	TSoftObjectPtr<UWorld> FinalLevel;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game|Loading")
+	TSubclassOf<UGMTK_LoadingScreenWidget> LoadingScreenWidgetClass;
 
 	// Delegates for Blueprint binding
 	UPROPERTY(BlueprintAssignable, Category = "PointAndClick")
 	FOnDelayStart OnDelayStart;
-	UPROPERTY(BlueprintAssignable, Category = "PointAndClick")
-	FOnDelayFinish OnDelayFinish;
 	UPROPERTY(BlueprintAssignable, Category = "PointAndClick")
 	FOnTimerStart OnTimerStart;
 	UPROPERTY(BlueprintAssignable, Category = "PointAndClick")
 	FOnTimerUpdate OnTimerUpdate;
 	UPROPERTY(BlueprintAssignable, Category = "PointAndClick")
 	FOnTimerFinish OnTimerFinish;
-
 protected:
 	virtual void BeginPlay() override;
 
@@ -74,10 +68,33 @@ private:
 	FTimerHandle TimerHandle;
 
 	int32 RemainingTime;
+
+	UPROPERTY()
+	TObjectPtr<UGMTK_LoadingScreenWidget> LoadingScreenWidget;
+
+	int32 PendingLevelIndex = 0;
+	FTimerHandle FakeLoadHandle;
+
+	// True once the scene has actually been "started".
+	// Prevents the scene from running while the screen is still black or fading.
+	bool bSceneStarted = false;
+	
+	UFUNCTION()
+	void HandleFadeInComplete();
+	
+	UFUNCTION()
+	void HandleFadeOutComplete();
+
+	void OpenPendingLevel();
+	void RevealLevel();
+	void StartScene();
 	
 	UFUNCTION()
 	void HandleCurrentSceneCompleted();
 
 	UFUNCTION()
 	void LoadLevelByIndex(int32 LevelIndex);
+
+	UPROPERTY()
+	const UGMTK_GameSettings* Settings;
 };

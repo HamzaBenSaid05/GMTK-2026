@@ -12,6 +12,7 @@ void AGMTK_SceneControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SceneProgress.ResetScene();
+
 	UGMTK_GameFlowManager* GameFlowManager =
 		GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
 	if (GameFlowManager) { GameFlowManager->RegisterScene(SceneProgress); }

@@ -64,4 +64,27 @@ private:
 	
 	UPROPERTY()
 	UUserWidget* HoverWidget;
+
+	UFUNCTION()
+	void TogglePlayerControllerInput(bool bIsEnabled);
+
+	bool bInputEnabled = true;
+	
+	UFUNCTION()
+	void OnDelayStart()
+	{
+		TogglePlayerControllerInput(false);
+	}
+
+	UFUNCTION()
+	void OnTimerStart()
+	{
+		TogglePlayerControllerInput(true);
+	}
+
+	UFUNCTION()
+	void OnTimerFinish()
+	{
+		TogglePlayerControllerInput(false);
+	}
 };

@@ -3,7 +3,8 @@
 #include "Camera/CameraActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "GMTK_GameFlowManager.h"
-#include "GMTK_SceneControllerBase.h"
+#include "GMTK_LoadingScreenWidget.h"
+#include "Blueprint/UserWidget.h"
 
 AGMTK_GameMode::AGMTK_GameMode()
 {
@@ -17,38 +18,51 @@ AGMTK_GameMode::AGMTK_GameMode()
 void AGMTK_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	ActivateGameCamera();
+
+	// Load the game settings from the config file
+	Settings = GetDefault<UGMTK_GameSettings>();
 	
-	// The list is copied into the subsystem ONLY if it is still empty
+	// Activate the camera for the game, either by tag or fallback to the first camera in the level.
+	ActivateGameCamera();
+
+	// Spawn the loading screen already fully black BEFORE anything else,
+	// so the player never sees a flash of the fresh level underneath.
+	if (LoadingScreenWidgetClass)
+	{
+		LoadingScreenWidget = CreateWidget<UGMTK_LoadingScreenWidget>(GetWorld(), LoadingScreenWidgetClass);
+		if (LoadingScreenWidget)
+		{
+			LoadingScreenWidget->AddToViewport(1000);
+			LoadingScreenWidget->SetFullyOpaque();
+			LoadingScreenWidget->OnFadeOutComplete.AddUniqueDynamic(this, &AGMTK_GameMode::HandleFadeOutComplete);
+		}
+	}
+
 	UGMTK_GameFlowManager* Flow = GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
 	Flow->OnNewLevelToLoad.AddDynamic(this, &AGMTK_GameMode::LoadLevelByIndex);
 
-	// Bind on scene completed events for all scene controllers in the level
-	//if (Flow->Scenes.IsValidIndex(Flow->CurrentLevelIndex))
-	//{
-	//	Flow->Scenes[Flow->CurrentLevelIndex]->OnSceneCompleted.AddDynamic(
-	//		this,
-	//		&AGMTK_GameMode::HandleCurrentSceneCompleted);
-	//}
-	//else
-	//{
-		UE_LOG(LogTemp, Error,
-			TEXT("Invalid Scene Index %d (Num=%d)"),
-			Flow->CurrentLevelIndex,
-			Flow->ScenesData.Num());
-	//}
+	UE_LOG(LogTemp, Log,
+		TEXT("BeginPlay: LevelIndex %d (ScenesData Num=%d)"),
+		Flow->CurrentLevelIndex,
+		Flow->ScenesData.Num());
 
-	
-	// Start the delay timer
-	OnDelayStart.Broadcast();
-
-	GetWorldTimerManager().SetTimer(
-		DelayHandle,
-		this,
-		&AGMTK_GameMode::StartMainTimer,
-		DelayTimer,
-		false
-	);
+	if (LoadingScreenWidget)
+	{
+		// Wait HoldDuration then fade out; the scene itself only starts once fade-out
+		// is fully complete (see HandleFadeOutComplete -> StartScene).
+		GetWorldTimerManager().SetTimer(
+			FakeLoadHandle,
+			this,
+			&AGMTK_GameMode::RevealLevel,
+			LoadingScreenWidget->HoldDuration,
+			false
+		);
+	}
+	else
+	{
+		// No loading screen configured: start the scene immediately.
+		StartScene();
+	}
 }
 
 void AGMTK_GameMode::ActivateGameCamera() const
@@ -90,8 +104,6 @@ void AGMTK_GameMode::ActivateGameCamera() const
 
 void AGMTK_GameMode::StartMainTimer()
 {
-	OnDelayFinish.Broadcast();
-
 	OnTimerStart.Broadcast();
 
 	RemainingTime = FMath::CeilToInt(TimerLength);
@@ -122,7 +134,7 @@ void AGMTK_GameMode::UpdateMainTimer()
 
 		OnTimerUpdate.Broadcast(0);
 		OnTimerFinish.Broadcast();
-
+		
 		FTimerHandle DelayFinishHandle;
 		GetWorldTimerManager().SetTimer(
 			DelayFinishHandle,
@@ -139,6 +151,61 @@ void AGMTK_GameMode::UpdateMainTimer()
 	}
 }
 
+void AGMTK_GameMode::HandleFadeInComplete()
+{
+	if (LoadingScreenWidget)
+	{
+		LoadingScreenWidget->OnFadeInComplete.RemoveDynamic(this, &AGMTK_GameMode::HandleFadeInComplete);
+	}
+	OpenPendingLevel();
+}
+
+void AGMTK_GameMode::HandleFadeOutComplete()
+{
+	if (LoadingScreenWidget)
+	{
+		LoadingScreenWidget->OnFadeOutComplete.RemoveDynamic(this, &AGMTK_GameMode::HandleFadeOutComplete);
+	}
+	StartScene();
+}
+
+void AGMTK_GameMode::OpenPendingLevel()
+{
+	if (PendingLevelIndex >= Settings->Levels.Num())
+	{
+		UGameplayStatics::OpenLevelBySoftObjectPtr(GetWorld(), Settings->FinalLevel);
+		return;
+	}
+	UGameplayStatics::OpenLevelBySoftObjectPtr(GetWorld(), Settings->Levels[PendingLevelIndex]);
+}
+
+void AGMTK_GameMode::RevealLevel()
+{
+	if (LoadingScreenWidget)
+	{
+		LoadingScreenWidget->FadeOut();
+	}
+}
+
+void AGMTK_GameMode::StartScene()
+{
+	if (bSceneStarted)
+	{
+		return;
+	}
+	bSceneStarted = true;
+	
+	OnDelayStart.Broadcast();
+
+	GetWorldTimerManager().SetTimer(
+		DelayHandle,
+		this,
+		&AGMTK_GameMode::StartMainTimer,
+		DelayTimer,
+		false
+	);
+}
+
 void AGMTK_GameMode::HandleCurrentSceneCompleted()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle);
@@ -152,13 +219,14 @@ void AGMTK_GameMode::HandleCurrentSceneCompleted()
 
 void AGMTK_GameMode::LoadLevelByIndex(int32 LevelIndex)
 {
-	if (LevelIndex >= LevelSequence.Num())
+	PendingLevelIndex = LevelIndex;
+	
+	if (!LoadingScreenWidget)
 	{
-		UGameplayStatics::OpenLevelBySoftObjectPtr(GetWorld(), FinalLevel);
+		// No loading screen configured: load immediately as before.
+		OpenPendingLevel();
 		return;
 	}
-	UGameplayStatics::OpenLevelBySoftObjectPtr(
-								   GetWorld(),
-								   LevelSequence[LevelIndex]
-								  );
+	LoadingScreenWidget->OnFadeInComplete.AddUniqueDynamic(this, &AGMTK_GameMode::HandleFadeInComplete);
+	LoadingScreenWidget->FadeIn();
 }
