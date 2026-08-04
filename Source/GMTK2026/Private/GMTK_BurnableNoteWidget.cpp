@@ -44,6 +44,12 @@ void UGMTK_BurnableNoteWidget::ResetNote()
 	CurrentBurnTime = 0.0f;
 }
 
+void UGMTK_BurnableNoteWidget::SetSceneMaterial(UMaterialInstance* Material)
+{
+	SceneNoteMaterial = Material;
+	SetNoteSceneBrush(Material);
+}
+
 void UGMTK_BurnableNoteWidget::SetNoteEnabled(bool bEnabled)
 {
 	// Set to SelfHitTestInvisible to allow the flame to overlap and trigger the burn logic, but not block clicks.

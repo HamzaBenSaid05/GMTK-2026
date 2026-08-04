@@ -33,6 +33,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FinalNotes")
 	TMap<FGameplayTag, FName> NoteSlotNames;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FinalNotes")
+	TObjectPtr<UMaterialInstance> PlayerNoteMaterial;
+	
 	UFUNCTION(BlueprintCallable, Category = "FinalNotes")
 	void StartRetryOfFailedScenes();
 
@@ -63,7 +66,4 @@ private:
 	bool AreAllSceneNotesBurned() const;
 
 	void SpawnUnburnedSceneNotes();
-
-	UPROPERTY()
-	TObjectPtr<UMaterialInstance> PlayerNoteMaterial;
 };
