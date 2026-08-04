@@ -3,6 +3,7 @@
 #include "GMTK_BurnableNoteWidget.h"
 #include "GMTK_LighterWidget.h"
 #include "GMTK_GameFlowManager.h"
+#include "GTMK_NameSlotNote.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/NamedSlot.h"
 #include "Components/TextBlock.h"
@@ -58,7 +59,7 @@ void UGMTK_FinalNotesWidget::SpawnUnburnedSceneNotes()
 			continue;
 		}
 
-		UNamedSlot* TargetSlot = Cast<UNamedSlot>(WidgetTree->FindWidget(*SlotName));
+		UGTMK_NameSlotNote* TargetSlot = Cast<UGTMK_NameSlotNote>(WidgetTree->FindWidget(*SlotName));
 		if (!TargetSlot)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Named Slot '%s' not found in this Widget Blueprint."), *SlotName->ToString());
@@ -74,7 +75,8 @@ void UGMTK_FinalNotesWidget::SpawnUnburnedSceneNotes()
 		Note->WishID = WishID;
 		Note->bIsCorrectWish = Scene.bIsCompleted;
 		Note->OnNoteBurnResult.AddDynamic(this, &UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult);
-
+		Note->SceneNoteMaterial = TargetSlot->SceneNoteMaterial;
+		
 		TargetSlot->SetContent(Note);
 
 		SceneNotes.AddUnique(Note);

@@ -63,4 +63,7 @@ private:
 	bool AreAllSceneNotesBurned() const;
 
 	void SpawnUnburnedSceneNotes();
+
+	UPROPERTY()
+	TObjectPtr<UMaterialInstance> PlayerNoteMaterial;
 };

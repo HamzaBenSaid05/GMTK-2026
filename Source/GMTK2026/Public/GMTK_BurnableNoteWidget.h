@@ -55,6 +55,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Note")
 	void SetNoteEnabled(bool bEnabled);
 
+	UPROPERTY(BlueprintReadOnly, Category = "Note")
+	TObjectPtr<UMaterialInstance> SceneNoteMaterial;
+	
 protected:
 	virtual void NativeConstruct() override;
 
