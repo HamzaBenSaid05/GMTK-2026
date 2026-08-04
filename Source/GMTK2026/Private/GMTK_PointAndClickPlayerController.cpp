@@ -7,6 +7,7 @@
 #include "GMTK_GameMode.h"
 #include "InputAction.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Kismet/GameplayStatics.h"
 
 AGMTK_PointAndClickPlayerController::AGMTK_PointAndClickPlayerController()
@@ -55,15 +56,15 @@ void AGMTK_PointAndClickPlayerController::BeginPlay()
 	}
 
 	// Bind to game mode timer event to toggle input
-	if (AGMTK_GameMode* GameMode = Cast<AGMTK_GameMode>(UGameplayStatics::GetGameMode(this)))
-	{
-		// Disable Input
-		GameMode->OnDelayStart.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnDelayStart);
-		// Enable Input
-		GameMode->OnTimerStart.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnTimerStart);
-		// Disable Input
-		GameMode->OnTimerFinish.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnTimerFinish);
-	}
+	//if (AGMTK_GameMode* GameMode = Cast<AGMTK_GameMode>(UGameplayStatics::GetGameMode(this)))
+	//{
+	//	// Disable Input
+	//	GameMode->OnDelayStart.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnDelayStart);
+	//	// Enable Input
+	//	GameMode->OnTimerStart.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnTimerStart);
+	//	// Disable Input
+	//	GameMode->OnTimerFinish.AddDynamic(this, &AGMTK_PointAndClickPlayerController::OnTimerFinish);
+	//}
 }
 
 void AGMTK_PointAndClickPlayerController::SetupInputComponent()
@@ -166,7 +167,17 @@ void AGMTK_PointAndClickPlayerController::PlayerTick(float DeltaTime)
 
 				ProjectWorldLocationToScreen(WorldLocation, ScreenPosition);
 
-				HoverWidget->SetPositionInViewport(ScreenPosition, true);
+				HoverWidget->SetPositionInViewport(ScreenPosition, false);
+				
+				DrawDebugSphere(
+				                GetWorld(),
+				                CurrentHover->HoverPoint->GetComponentLocation(),
+				                10,
+				                12,
+				                FColor::Purple,
+				                false,
+				                0.1f
+				               );
 				
 				HoverWidget->SetVisibility(
 					ESlateVisibility::Visible
