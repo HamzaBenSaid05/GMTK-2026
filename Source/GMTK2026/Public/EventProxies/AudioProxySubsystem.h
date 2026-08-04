@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "Public/SoundSystem/Data/AudioRow.h"
+#include "Public/SoundSystem/Data/GMTK_AudioRow.h"
 #include "Sound/SoundSubmix.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "AudioProxySubsystem.generated.h"
@@ -10,18 +10,18 @@
 struct AudioRow;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(
 	FAudioTableEventDelegate,
-	FAudioRow&, Row,
+	FGMTK_AudioRow&, Row,
 	class UAudioComponent*&, AudioComp,
 	FVector&, Location,
-	FTPP_AudioParameter&, Parameter,
+	FGMTK_AudioParameter&, Parameter,
 	USceneComponent*, TargetSource
 );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
 	FAudioTableEventDelegateUI,
 	FGameplayTag, Tag,
-	FTPP_AudioParameter, Parameter,
+	FGMTK_AudioParameter, Parameter,
 	USoundSubmix*,Submix,
-	ButtonType, Button
+	EGMTK_ButtonType, Button
 );
 
 UCLASS(BlueprintType, Blueprintable)
@@ -34,7 +34,7 @@ public:
 	FAudioTableEventDelegate OnAudioTableEvent;
 	
 	UFUNCTION(BlueprintCallable)
-	void NotifyAudioTableEventUI(FGameplayTag Tag,struct FTPP_AudioParameter Parameter,USoundSubmix* Submix,ButtonType Button) const;
-	void NotifyAudioTableEvent(FAudioRow& Row, class UAudioComponent*& AudioComp, FVector& Location, FTPP_AudioParameter& Parameter, class USceneComponent* SourceActor) const;
+	void NotifyAudioTableEventUI(FGameplayTag Tag,struct FGMTK_AudioParameter Parameter,USoundSubmix* Submix,EGMTK_ButtonType Button) const;
+	void NotifyAudioTableEvent(FGMTK_AudioRow& Row, class UAudioComponent*& AudioComp, FVector& Location, FGMTK_AudioParameter& Parameter, class USceneComponent* SourceActor) const;
 
 };

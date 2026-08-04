@@ -1,13 +1,13 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "AudioSpatialization.h"
+#include "GMTK_AudioSpatialization.h"
 #include "Engine/DataTable.h"
 #include "Sound/SoundBase.h"
-#include "AudioRow.generated.h"
+#include "GMTK_AudioRow.generated.h"
 
 USTRUCT(BlueprintType)
-struct FTPP_AudioParameter
+struct FGMTK_AudioParameter
 {
 	GENERATED_BODY()
 
@@ -18,7 +18,7 @@ struct FTPP_AudioParameter
 	FName Name = NAME_None;
 };
 UENUM(BlueprintType)
-enum class ButtonType : uint8 
+enum class EGMTK_ButtonType : uint8 
 {
 	Button,
 	Slider,
@@ -26,7 +26,7 @@ enum class ButtonType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FAudioRow : public FTableRowBase
+struct FGMTK_AudioRow : public FTableRowBase
 {
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(Categories="Audio"))
@@ -36,7 +36,7 @@ struct FAudioRow : public FTableRowBase
 	USoundBase* Sound = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	AudioSpatialization SpatializationType = AudioSpatialization::TwoD;
+	GMTK_AudioSpatialization SpatializationType = GMTK_AudioSpatialization::TwoD;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TPP_AudioTargetFollowMode FollowModeType = TPP_AudioTargetFollowMode::StartLocation;
@@ -44,5 +44,5 @@ struct FAudioRow : public FTableRowBase
 	UPROPERTY(EditAnywhere)
 	bool bIsUISound = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameter")
-	FTPP_AudioParameter Parameter;
+	FGMTK_AudioParameter Parameter;
 };

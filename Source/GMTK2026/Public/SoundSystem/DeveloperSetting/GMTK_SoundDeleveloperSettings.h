@@ -2,16 +2,16 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
-#include "Public/SoundSystem/Data/SoundLevel.h"
-#include "SoundDeleveloperSettings.generated.h"
+#include "Public/SoundSystem/Data/GMTK_SoundLevel.h"
+#include "GMTK_SoundDeleveloperSettings.generated.h"
 
 UCLASS(Config = GameSound, DefaultConfig)
-class GMTK2026_API USoundDeleveloperSettings : public UDeveloperSettings
+class GMTK2026_API UGMTK_SoundDeleveloperSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
 public:
-	USoundDeleveloperSettings();
+	UGMTK_SoundDeleveloperSettings();
 	UPROPERTY(Config, EditAnywhere, Category = "Sound Classes")
 	TSoftObjectPtr<class USoundSubmix> MasterMixer;
 	UPROPERTY(Config, EditAnywhere, Category = "Sound Classes")
@@ -26,5 +26,5 @@ public:
 	TSoftObjectPtr<class USoundSubmix> voiceMixer;
 
 	UPROPERTY(Config, EditAnywhere, Category = "Levels")
-	FSoundLevel defaultLevels;
+	FGMTK_SoundLevel defaultLevels;
 };
