@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GMTK_GameSettings.h"
 #include "GMTK_LoadingScreenWidget.h"
+#include "GMTK_SceneControllerBase.h"
 #include "GameFramework/GameMode.h"
 #include "GMTK_GameMode.generated.h"
 
@@ -21,12 +21,12 @@ class GMTK2026_API AGMTK_GameMode : public AGameMode
 
 public:
 	AGMTK_GameMode();
-	
+
 	// Camera Tag
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game|Camera")
 	FName GameCameraTag = FName(TEXT("GameCamera"));
 
-	// If ture use the first camera found in the level if no camera has the tag above. 
+	// If true use the first camera found in the level if no camera has the tag above. 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Camera")
 	bool bFallbackToFirstCameraInLevel = true;
 
@@ -56,8 +56,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	// Find the correct camera (by tag, then fallback) and set it as the view target of the Player Controller.
-	// Works identically for Camera Actor and Cine Camera Actor.
+	// Find the correct camera by tag, then fallback
 	void ActivateGameCamera() const;
 
 	// Delay and Timer functions
@@ -66,18 +65,26 @@ private:
 
 	FTimerHandle DelayHandle;
 	FTimerHandle TimerHandle;
-
+	FTimerHandle DelayFinishHandle;
+	
 	int32 RemainingTime;
 
 	UPROPERTY()
 	TObjectPtr<UGMTK_LoadingScreenWidget> LoadingScreenWidget;
 
-	int32 PendingLevelIndex = 0;
 	FTimerHandle FakeLoadHandle;
 
-	// True once the scene has actually been "started".
-	// Prevents the scene from running while the screen is still black or fading.
+	// True once the scene has actually been "started"
 	bool bSceneStarted = false;
+	
+	UPROPERTY()
+	TObjectPtr<AGMTK_SceneControllerBase> CurrentSceneController;
+
+	TSoftObjectPtr<UWorld> PendingLevelAsset;
+
+	bool bSceneResolved = false;
+
+	void ResolveAndAdvance(bool bSucceeded);
 	
 	UFUNCTION()
 	void HandleFadeInComplete();
@@ -94,7 +101,4 @@ private:
 
 	UFUNCTION()
 	void LoadLevelByIndex(int32 LevelIndex);
-
-	UPROPERTY()
-	const UGMTK_GameSettings* Settings;
 };

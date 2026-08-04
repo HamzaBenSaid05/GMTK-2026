@@ -20,7 +20,7 @@ AGMTK_PointAndClickPlayerController::AGMTK_PointAndClickPlayerController()
 void AGMTK_PointAndClickPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	PC = UGameplayStatics::GetPlayerController(this, 0);
 	// Set Up Input Mode
 	FInputModeGameAndUI InputMode;
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
@@ -117,13 +117,27 @@ AGMTK_InteractableActor* AGMTK_PointAndClickPlayerController::TraceUnderCursor()
 
 void AGMTK_PointAndClickPlayerController::TogglePlayerControllerInput(bool bIsEnabled) 
 {
-	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
 	if (PC)
 	{
 		bInputEnabled = bIsEnabled;
-		PC->SetIgnoreMoveInput(!bIsEnabled);
-		PC->SetIgnoreLookInput(!bIsEnabled);
-		PC->bShowMouseCursor = bIsEnabled;
+		if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+			{
+				if (DefaultMappingContext)
+				{
+					if (bIsEnabled)
+					{
+						Subsystem->AddMappingContext(DefaultMappingContext, MappingContextPriority);
+					}
+					else
+					{
+						Subsystem->RemoveMappingContext(DefaultMappingContext);
+					}
+				}
+			}
+			PC->bShowMouseCursor = bIsEnabled;
+		}
 	}
 }
 

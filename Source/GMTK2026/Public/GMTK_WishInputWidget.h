@@ -26,6 +26,10 @@ public:
 	// Sinchronized with current text to apply truncation if needed
 	UFUNCTION(BlueprintCallable, Category = "Wish")
 	void UpdateCurrentText(const FString& NewText);
+	
+	// Fired after UpdateCurrentText, only when truncation actually happened 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Wish")
+	void OnTextTruncated(const FString& TruncatedText);
 
 	// Notify the GameFlowManager and close the widget
 	UFUNCTION(BlueprintCallable, Category = "Wish")

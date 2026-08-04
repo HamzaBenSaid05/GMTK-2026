@@ -1,8 +1,6 @@
 #include "GMTK_SceneControllerBase.h"
 
 #include "GMTK_GameFlowManager.h"
-#include "GMTK_GameMode.h"
-#include "GMTK_GameSettings.h"
 #include "GMTK_SceneDefinitionAsset.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
@@ -18,8 +16,6 @@ void AGMTK_SceneControllerBase::BeginPlay()
 	UGMTK_GameFlowManager* GameFlowManager =
 		GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>();
 	if (GameFlowManager) { GameFlowManager->RegisterScene(SceneProgress); }
-	AGMTK_GameMode* GameMode = Cast<AGMTK_GameMode>(GetWorld()->GetAuthGameMode());
-	if (GameMode) { GameMode->OnTimerFinish.AddDynamic(this, &AGMTK_SceneControllerBase::UpdateSceneGameConfig); }
 }
 
 void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
@@ -92,56 +88,5 @@ void AGMTK_SceneControllerBase::PlaySequenceForEvent(FGameplayTag EventTag)
 			                                );
 		}
 		ActiveSequencePlayer->Play();
-	}
-}
-
-void AGMTK_SceneControllerBase::UpdateSceneGameConfig()
-{
-	if (!SceneProgress.bIsCompleted)
-	{
-		return;
-	}
-
-	UGMTK_GameSettings* Settings = GetMutableDefault<UGMTK_GameSettings>();
-
-	if (!Settings)
-	{
-		return;
-	}
-
-	UWorld* CurrentWorld = GetWorld();
-
-	if (!CurrentWorld)
-	{
-		return;
-	}
-
-
-	FSoftObjectPath CurrentPath(
-		CurrentWorld->GetOutermost()->GetName()
-	);
-
-
-	for (int32 i = Settings->Levels.Num() - 1; i >= 0; --i)
-	{
-		if (Settings->Levels[i].ToSoftObjectPath() == CurrentPath)
-		{
-			UE_LOG(LogTemp, Warning,
-				TEXT("Removing completed level: %s"),
-				*CurrentPath.ToString()
-			);
-
-
-			Settings->Levels.RemoveAt(i);
-			break;
-		}
-	}
-
-	Settings->SaveConfig();
-
-	if (UGMTK_GameFlowManager* Flow =
-		GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>())
-	{
-		Flow->UnRegisterScene(SceneProgress.SceneData->WishID);
 	}
 }

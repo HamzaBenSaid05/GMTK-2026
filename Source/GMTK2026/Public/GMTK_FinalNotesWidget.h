@@ -1,11 +1,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Blueprint/UserWidget.h"
 #include "GMTK_FinalNotesWidget.generated.h"
 
 class UGMTK_BurnableNoteWidget;
 class UGMTK_LighterWidget;
+class UPanelWidget;
 
 UCLASS(Abstract, Blueprintable)
 class GMTK2026_API UGMTK_FinalNotesWidget : public UUserWidget
@@ -13,22 +15,30 @@ class GMTK2026_API UGMTK_FinalNotesWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	// Populated in Native Construct by scanning all UGMTK_BurnableNoteWidget in this Widget Blueprint 
+	// Note widgets currently spawned for this visit to the tickets screen
 	UPROPERTY(BlueprintReadOnly, Category = "FinalNotes")
 	TArray<TObjectPtr<UGMTK_BurnableNoteWidget>> SceneNotes;
 
-	// Note with Player desire 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	TObjectPtr<UGMTK_BurnableNoteWidget> PlayerNote;
 
-	// Lighter
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UGMTK_LighterWidget> LighterWidget;
 
-	// Called from a "Retry" button in UI: if some notes are still missing, OnSomeSceneNotesWrong is triggered.
-	UFUNCTION(BlueprintCallable, Category = "FinalNotes")
-	void RequestRetryCheck();
+	// Class used to spawn a scene note widget dynamically, one per unburned scene.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FinalNotes")
+	TSubclassOf<UGMTK_BurnableNoteWidget> SceneNoteWidgetClass;
 
+	// Panel where dynamically created note widgets are added 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FinalNotes")
+	TMap<FGameplayTag, FName> NoteSlotNames;
+
+	UFUNCTION(BlueprintCallable, Category = "FinalNotes")
+	void StartRetryOfFailedScenes();
+
+	UFUNCTION(BlueprintCallable, Category = "FinalNotes")
+	void RestartAllScenes();
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -38,9 +48,19 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "FinalNotes")
 	void OnSomeSceneNotesWrong();
 
+	// Called right after a note widget is spawned, in case you want to set its position/slot
+	// from Blueprint (e.g. a predefined layout per WishID) instead of relying only on the panel's auto-layout.
+	UFUNCTION(BlueprintImplementableEvent, Category = "FinalNotes")
+	void OnSceneNoteSpawned();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "FinalNotes")
+	void OnPlayerNoteBurned();
+
 private:
 	UFUNCTION()
-	void HandleSceneNoteBurnResult(bool bWasCorrect);
+	void HandleSceneNoteBurnResult(bool bWasCorrect, FGameplayTag WishID, bool bIsPlayerNote = false);
 
 	bool AreAllSceneNotesBurned() const;
+
+	void SpawnUnburnedSceneNotes();
 };

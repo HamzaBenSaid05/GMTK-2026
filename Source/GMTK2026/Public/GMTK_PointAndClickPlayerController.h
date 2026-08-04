@@ -65,6 +65,9 @@ private:
 	UPROPERTY()
 	UUserWidget* HoverWidget;
 
+	UPROPERTY()
+	APlayerController* PC;
+		
 	UFUNCTION()
 	void TogglePlayerControllerInput(bool bIsEnabled);
 

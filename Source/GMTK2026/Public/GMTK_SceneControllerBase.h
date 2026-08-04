@@ -18,13 +18,20 @@ struct FSceneProgress
 	TObjectPtr<UGMTK_SceneDefinitionAsset> SceneData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
+	FName WishText;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Scene")
 	FGameplayTag CurrentState;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
+	UPROPERTY(BlueprintReadOnly, Category = "Scene")
 	bool bIsCompleted = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scene")
+	UPROPERTY(BlueprintReadOnly, Category = "Scene")
 	bool bSceneLocked = false;
+
+	// True once this scene's ticket has been successfully burned in the tickets screen.
+	UPROPERTY()
+	bool bNoteBurned = false;
 	
 	// Reset Scenes when the player fails and wants to retry.
 	void ResetScene()
@@ -72,7 +79,4 @@ protected:
 
 private:
 	FGameplayTagContainer ActionTags;
-
-	UFUNCTION()
-	void UpdateSceneGameConfig();
 };

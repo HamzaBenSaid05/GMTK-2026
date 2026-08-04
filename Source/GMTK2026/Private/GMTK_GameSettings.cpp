@@ -2,5 +2,5 @@
 
 UGMTK_GameSettings::UGMTK_GameSettings()
 {
-	CategoryName = "GameLevels";
+	CategoryName = "GameSettings";
 }

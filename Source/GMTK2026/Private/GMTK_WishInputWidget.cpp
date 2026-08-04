@@ -7,6 +7,7 @@ void UGMTK_WishInputWidget::UpdateCurrentText(const FString& NewText)
 	if (NewText.Len() > MaxCharacters)
 	{
 		CurrentText = NewText.Left(MaxCharacters);
+		OnTextTruncated(CurrentText);
 	}
 	else
 	{
@@ -26,7 +27,7 @@ void UGMTK_WishInputWidget::SubmitWish()
 		if (UGMTK_GameFlowManager* Flow = GI->GetSubsystem<UGMTK_GameFlowManager>())
 		{
 			Flow->SetPlayerWish(CurrentText);
-			Flow->AdvanceToNextLevel();
+			//Flow->AdvanceToNextLevel();
 		}
 	}
 

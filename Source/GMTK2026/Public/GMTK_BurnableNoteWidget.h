@@ -8,7 +8,7 @@
 class UImage;
 class UTextBlock;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoteBurnResult, bool, bWasCorrect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnNoteBurnResult, bool, bWasCorrect, FGameplayTag, WishID, bool, bIsPlayerWish);
 
 UCLASS(Abstract, Blueprintable)
 class GMTK2026_API UGMTK_BurnableNoteWidget : public UUserWidget
@@ -36,6 +36,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Note")
 	bool bIsBurned = false;
+	
+	// Bind to show the wish text
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> WishTextBlock;
 
 	UPROPERTY(BlueprintAssignable, Category = "Note")
 	FOnNoteBurnResult OnNoteBurnResult;
@@ -62,8 +66,4 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Note")
 	void OnWishTextSet(const FString& WishText);
-
-	// Bind to show the wish text
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	TObjectPtr<UTextBlock> WishTextBlock;
 };

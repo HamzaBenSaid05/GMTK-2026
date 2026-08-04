@@ -3,62 +3,25 @@
 #include "GMTK_BurnableNoteWidget.h"
 #include "GMTK_LighterWidget.h"
 #include "GMTK_GameFlowManager.h"
-#include "GMTK_SceneControllerBase.h"
-#include "GMTK_SceneDefinitionAsset.h"
 #include "Blueprint/WidgetTree.h"
+#include "Components/NamedSlot.h"
+#include "Components/TextBlock.h"
 
 void UGMTK_FinalNotesWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// Find all UGMTK_BurnableNoteWidget placed inside this Widget Blueprint,
-	// except PlayerNote which is managed separately
-	if (WidgetTree)
-	{
-		WidgetTree->ForEachWidget([this](UWidget* Widget)
-		{
-			if (UGMTK_BurnableNoteWidget* Note = Cast<UGMTK_BurnableNoteWidget>(Widget))
-			{
-				if (Note != PlayerNote)
-				{
-					SceneNotes.AddUnique(Note);
-				}
-			}
-		});
-	}
+	SceneNotes.Reset();
+	SpawnUnburnedSceneNotes();
 
-	UGMTK_GameFlowManager* Flow = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>() : nullptr;
+	const UGMTK_GameFlowManager* Flow = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>() : nullptr;
 
-	for (UGMTK_BurnableNoteWidget* Note : SceneNotes)
-	{
-		if (!Note) continue;
-
-		bool bCompleted = false;
-		if (Flow)
-		{
-			for (const FSceneProgress& Scene : Flow->ScenesData)
-			{
-				if (Scene.SceneData && Scene.SceneData->WishID == Note->WishID)
-				{
-					bCompleted = Scene.bIsCompleted;
-					break;
-				}
-			}
-		}
-		Note->bIsCorrectWish = bCompleted;
-		Note->OnNoteBurnResult.AddDynamic(this, &UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult);
-
-		if (LighterWidget)
-		{
-			LighterWidget->RegisterNote(Note);
-		}
-	}
-
-	// PlayerNote burn always but is disabled until all other notes are correct.
+	// PlayerNote is only relevant once EVERY scene ticket has been burned.
 	if (PlayerNote)
 	{
 		PlayerNote->bIsCorrectWish = true;
-		PlayerNote->SetNoteEnabled(false);
+		PlayerNote->SetNoteEnabled(Flow ? !Flow->HasUnburnedNotes() : false);
+		PlayerNote->OnNoteBurnResult.AddDynamic(this, &UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult);
 
 		if (LighterWidget)
 		{
@@ -67,25 +30,80 @@ void UGMTK_FinalNotesWidget::NativeConstruct()
 	}
 }
 
-bool UGMTK_FinalNotesWidget::AreAllSceneNotesBurned() const
+void UGMTK_FinalNotesWidget::SpawnUnburnedSceneNotes()
 {
-	for (const UGMTK_BurnableNoteWidget* Note : SceneNotes)
+	if (!WidgetTree || !SceneNoteWidgetClass)
 	{
-		if (!Note || !Note->bIsBurned)
+		return;
+	}
+
+	UGMTK_GameFlowManager* Flow = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>() : nullptr;
+	if (!Flow)
+	{
+		return;
+	}
+
+	for (const FSceneProgress& Scene : Flow->ScenesData)
+	{
+		if (Scene.bNoteBurned || !Scene.SceneData)
 		{
-			return false;
+			continue;
+		}
+
+		const FGameplayTag WishID = Scene.SceneData->WishID;
+		const FName* SlotName = NoteSlotNames.Find(WishID);
+		if (!SlotName)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No slot configured for WishID %s, skipping note spawn."), *WishID.ToString());
+			continue;
+		}
+
+		UNamedSlot* TargetSlot = Cast<UNamedSlot>(WidgetTree->FindWidget(*SlotName));
+		if (!TargetSlot)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Named Slot '%s' not found in this Widget Blueprint."), *SlotName->ToString());
+			continue;
+		}
+
+		UGMTK_BurnableNoteWidget* Note = CreateWidget<UGMTK_BurnableNoteWidget>(this, SceneNoteWidgetClass);
+		if (!Note)
+		{
+			continue;
+		}	
+		Note->WishTextBlock->SetText(FText::FromName(Scene.WishText));
+		Note->WishID = WishID;
+		Note->bIsCorrectWish = Scene.bIsCompleted;
+		Note->OnNoteBurnResult.AddDynamic(this, &UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult);
+
+		TargetSlot->SetContent(Note);
+
+		SceneNotes.AddUnique(Note);
+
+		if (LighterWidget)
+		{
+			LighterWidget->RegisterNote(Note);
 		}
 	}
-	return SceneNotes.Num() > 0;
+	OnSceneNoteSpawned();
 }
 
-void UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult(bool bWasCorrect)
+void UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult(bool bWasCorrect, FGameplayTag WishID, bool bIsPlayerNote)
 {
-	// On NoteBurnResult is triggered only on success (see BurnableNoteWidget), so
-	// we just need to check if with this one all notes are burned.
 	if (!bWasCorrect)
 	{
 		return;
+	}
+
+	if (bIsPlayerNote)
+	{
+		OnPlayerNoteBurned();
+		return;
+	}
+	
+	// Find which note was just burned to mark it as burned persistently
+	if (UGMTK_GameFlowManager* Flow = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>() : nullptr)
+	{
+		Flow->MarkNoteBurned(WishID);
 	}
 
 	if (AreAllSceneNotesBurned())
@@ -98,14 +116,27 @@ void UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult(bool bWasCorrect)
 	}
 }
 
-void UGMTK_FinalNotesWidget::RequestRetryCheck()
+bool UGMTK_FinalNotesWidget::AreAllSceneNotesBurned() const
 {
-	if (AreAllSceneNotesBurned())
+	// All burned means: no scene left with bNoteBurned false,
+	// looking at the persistent state in Flow, not just the widgets
+	// currently spawned in this visit.
+	const UGMTK_GameFlowManager* Flow = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>() : nullptr;
+	return Flow ? !Flow->HasUnburnedNotes() : false;
+}
+
+void UGMTK_FinalNotesWidget::StartRetryOfFailedScenes()
+{
+	if (UGMTK_GameFlowManager* Flow = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>() : nullptr)
 	{
-		OnAllSceneNotesCorrect();
+		Flow->RequestRetry();
 	}
-	else
+}
+
+void UGMTK_FinalNotesWidget::RestartAllScenes()
+{
+	if (UGMTK_GameFlowManager* Flow = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGMTK_GameFlowManager>() : nullptr)
 	{
-		OnSomeSceneNotesWrong();
+		Flow->ResetGameProgress();
 	}
 }
