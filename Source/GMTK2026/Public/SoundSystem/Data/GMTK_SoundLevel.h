@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
-#include "SoundLevel.generated.h"
+#include "GMTK_SoundLevel.generated.h"
 
 USTRUCT(BlueprintType)
-struct FSoundLevel
+struct FGMTK_SoundLevel
 {
 	GENERATED_BODY()
 

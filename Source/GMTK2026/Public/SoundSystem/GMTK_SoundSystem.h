@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Data/AudioRow.h"
-#include "Data/SoundLevel.h"
+#include "Data/GMTK_AudioRow.h"
+#include "Data/GMTK_SoundLevel.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "SoundSystem.generated.h"
+#include "GMTK_SoundSystem.generated.h"
 
 UCLASS()
-class GMTK2026_API USoundSystem : public UWorldSubsystem
+class GMTK2026_API UGMTK_SoundSystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 	public:
@@ -17,11 +17,11 @@ class GMTK2026_API USoundSystem : public UWorldSubsystem
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual void Deinitialize() override;
 	UFUNCTION()
-	void PlayBlueprintSound(struct FAudioRow& Row, class AActor* SourceActor, class UAudioComponent* AudioComp, FVector Location);
+	void PlayBlueprintSound(struct FGMTK_AudioRow& Row, class AActor* SourceActor, class UAudioComponent* AudioComp, FVector Location);
 	UFUNCTION()
-	void PlaySound(FAudioRow& Row, class UAudioComponent*& AudioComp, FVector& Location, FTPP_AudioParameter& Parameter, class USceneComponent* SourceActor);
+	void PlaySound(FGMTK_AudioRow& Row, class UAudioComponent*& AudioComp, FVector& Location, FGMTK_AudioParameter& Parameter, class USceneComponent* SourceActor);
 
-	FORCEINLINE const class USoundDeleveloperSettings* GetSettings() const { return SoundSettings; }
+	FORCEINLINE const class UGMTK_SoundDeleveloperSettings* GetSettings() const { return SoundSettings; }
 
 	UFUNCTION(BlueprintPure, Category = "Audio")
 	FORCEINLINE float GetMasterVolume() const { return Levels.master; }
@@ -54,12 +54,12 @@ class GMTK2026_API USoundSystem : public UWorldSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Audio")
 	void SetVoiceVolume(float NewVoiceVolume);
 
-	const FSoundLevel& GetLevels() const { return Levels; }
+	const FGMTK_SoundLevel& GetLevels() const { return Levels; }
 	UFUNCTION(BlueprintCallable, Category = "Audio", DisplayName = "Get Levels")
-	FSoundLevel GetLevelsCopy() const { return Levels; }
+	FGMTK_SoundLevel GetLevelsCopy() const { return Levels; }
 
 	UFUNCTION(BlueprintCallable, Category = "Audio")
-	void SetLevels(const FSoundLevel& NewLevels);
+	void SetLevels(const FGMTK_SoundLevel& NewLevels);
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "Audio")
@@ -69,7 +69,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UWorld> CurrentWorld;
 	UPROPERTY()
-	TObjectPtr<const class USoundDeleveloperSettings> SoundSettings;
+	TObjectPtr<const class UGMTK_SoundDeleveloperSettings> SoundSettings;
 	UPROPERTY()
-	FSoundLevel Levels;
+	FGMTK_SoundLevel Levels;
 };

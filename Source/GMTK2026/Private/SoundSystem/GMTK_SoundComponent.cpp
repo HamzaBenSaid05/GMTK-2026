@@ -1,22 +1,22 @@
-#include "SoundSystem/SoundComponent.h"
+#include "SoundSystem/GMTK_SoundComponent.h"
 #include "GameplayTagContainer.h"
 #include "Components/AudioComponent.h"
 #include "EventProxies/AudioProxySubsystem.h"
 
-USoundBase* USoundComponent::FindSound(FGameplayTag Tag)
+USoundBase* UGMTK_SoundComponent::FindSound(FGameplayTag Tag)
 {
-	FAudioRow* Row = FindGamplayTag(Tag);
+	FGMTK_AudioRow* Row = FindGamplayTag(Tag);
 	if (Row == nullptr || Row->Sound == nullptr) return nullptr;
 	return Row->Sound;
 }
 
-FAudioRow* USoundComponent::FindGamplayTag(FGameplayTag Tag) const
+FGMTK_AudioRow* UGMTK_SoundComponent::FindGamplayTag(FGameplayTag Tag) const
 {
 	static const FString ContextString(TEXT("Tag Search Context"));
 
-	TArray<FAudioRow*> AllRows;
-	Table->GetAllRows<FAudioRow>(ContextString, AllRows);
-	for (FAudioRow* Row : AllRows)
+	TArray<FGMTK_AudioRow*> AllRows;
+	Table->GetAllRows<FGMTK_AudioRow>(ContextString, AllRows);
+	for (FGMTK_AudioRow* Row : AllRows)
 	{
 		if (Row && Row->ItemTag == Tag)
 		{
@@ -26,11 +26,11 @@ FAudioRow* USoundComponent::FindGamplayTag(FGameplayTag Tag) const
 	return nullptr;
 }
 
-void USoundComponent::PlaySound(FGameplayTag Tag, FVector SourceLocation, UAudioComponent*& AudioComp, FTPP_AudioParameter Parameter, USceneComponent* SourceActor)
+void UGMTK_SoundComponent::PlaySound(FGameplayTag Tag, FVector SourceLocation, UAudioComponent*& AudioComp, FGMTK_AudioParameter Parameter, USceneComponent* SourceActor)
 {
 	if (Tag == FGameplayTag::EmptyTag || Table == nullptr) { return; }
 
-	FAudioRow* Row = FindGamplayTag(Tag);
+	FGMTK_AudioRow* Row = FindGamplayTag(Tag);
 	
 	if (Row == nullptr)
 	{
@@ -41,7 +41,7 @@ void USoundComponent::PlaySound(FGameplayTag Tag, FVector SourceLocation, UAudio
 	GetWorld()->GetSubsystem<UAudioProxySubsystem>()->NotifyAudioTableEvent(*Row, AudioComp, SourceLocation,Parameter,SourceActor);
 }
 
-void USoundComponent::SetAudioComponent(UAudioComponent*& AudioComponent, FGameplayTag Tag)
+void UGMTK_SoundComponent::SetAudioComponent(UAudioComponent*& AudioComponent, FGameplayTag Tag)
 {
 	if (!AudioComponent)
 	{
@@ -50,6 +50,6 @@ void USoundComponent::SetAudioComponent(UAudioComponent*& AudioComponent, FGamep
 		AudioComponent->RegisterComponent();
 
 		AudioComponent->bAutoActivate = false;
-		FAudioRow* Row = FindGamplayTag(Tag);
+		FGMTK_AudioRow* Row = FindGamplayTag(Tag);
 	}
 }

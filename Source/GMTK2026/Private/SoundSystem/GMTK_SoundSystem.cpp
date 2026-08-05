@@ -1,23 +1,23 @@
-#include "Public/SoundSystem/SoundSystem.h"
+#include "Public/SoundSystem/GMTK_SoundSystem.h"
 
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Public/EventProxies/AudioProxySubsystem.h"
-#include "Public/SoundSystem/Data/AudioRow.h"
-#include "Public/SoundSystem/Data/AudioSpatialization.h"
-#include "Public/SoundSystem/DeveloperSetting/SoundDeleveloperSettings.h"
+#include "Public/SoundSystem/Data/GMTK_AudioRow.h"
+#include "Public/SoundSystem/Data/GMTK_AudioSpatialization.h"
+#include "Public/SoundSystem/DeveloperSetting/GMTK_SoundDeleveloperSettings.h"
 #include "Sound/SoundSubmix.h"
 
-void USoundSystem::Initialize(FSubsystemCollectionBase& Collection)
+void UGMTK_SoundSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
 	if (UAudioProxySubsystem* Proxy = GetWorld()->GetSubsystem<UAudioProxySubsystem>())
 	{
-		Proxy->OnAudioTableEvent.AddDynamic(this, &USoundSystem::PlaySound);
+		Proxy->OnAudioTableEvent.AddDynamic(this, &UGMTK_SoundSystem::PlaySound);
 	}
 
-	SoundSettings = GetDefault<USoundDeleveloperSettings>();
+	SoundSettings = GetDefault<UGMTK_SoundDeleveloperSettings>();
 
 	if (GEngine)
 	{
@@ -36,7 +36,7 @@ void USoundSystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 }
 
-void USoundSystem::OnWorldBeginPlay(UWorld& InWorld)
+void UGMTK_SoundSystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
 	//if (UTPP_GameInstance* GI = InWorld.GetGameInstance<UTPP_GameInstance>())
@@ -51,7 +51,7 @@ void USoundSystem::OnWorldBeginPlay(UWorld& InWorld)
 	//}
 }
 
-void USoundSystem::Deinitialize()
+void UGMTK_SoundSystem::Deinitialize()
 {
 	SoundSettings = nullptr;
 	CurrentWorld = nullptr;
@@ -59,11 +59,11 @@ void USoundSystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-void USoundSystem::PlayBlueprintSound(FAudioRow & Row, class AActor * SourceActor, class UAudioComponent*  AudioComp, FVector Location)
+void UGMTK_SoundSystem::PlayBlueprintSound(FGMTK_AudioRow & Row, class AActor * SourceActor, class UAudioComponent*  AudioComp, FVector Location)
 {
 	USceneComponent* AttachComponent = SourceActor->GetRootComponent();
 
-	if (Row.SpatializationType == AudioSpatialization::ThreeDs)
+	if (Row.SpatializationType == GMTK_AudioSpatialization::ThreeDs)
 	{
 		if (Row.FollowModeType == TPP_AudioTargetFollowMode::TargetLocation)
 		{
@@ -74,10 +74,10 @@ void USoundSystem::PlayBlueprintSound(FAudioRow & Row, class AActor * SourceActo
 	else { AudioComp = UGameplayStatics::SpawnSound2D(GetWorld(), Row.Sound); }
 }
 
-void USoundSystem::PlaySound(struct FAudioRow& Row, class UAudioComponent*& AudioComp, FVector& Location, struct FTPP_AudioParameter& Parameter,
+void UGMTK_SoundSystem::PlaySound(struct FGMTK_AudioRow& Row, class UAudioComponent*& AudioComp, FVector& Location, struct FGMTK_AudioParameter& Parameter,
 	class USceneComponent* SourceActor)
 {
-	if (Row.SpatializationType == AudioSpatialization::ThreeDs)
+	if (Row.SpatializationType == GMTK_AudioSpatialization::ThreeDs)
 	{
 		if (Row.FollowModeType == TPP_AudioTargetFollowMode::TargetLocation)
 		{
@@ -91,7 +91,7 @@ void USoundSystem::PlaySound(struct FAudioRow& Row, class UAudioComponent*& Audi
 	AudioComp->SetUISound(Row.bIsUISound);
 }
 
-void USoundSystem::SetMasterVolume(float NewMasterVolume)
+void UGMTK_SoundSystem::SetMasterVolume(float NewMasterVolume)
 {
 	SetLevel(
 		SoundSettings->MasterMixer,
@@ -100,7 +100,7 @@ void USoundSystem::SetMasterVolume(float NewMasterVolume)
 	);
 }
 
-void USoundSystem::SetAmbienceVolume(float NewAmbienceVolume)
+void UGMTK_SoundSystem::SetAmbienceVolume(float NewAmbienceVolume)
 {
 	SetLevel(
 		SoundSettings->ambienceMixer,
@@ -109,7 +109,7 @@ void USoundSystem::SetAmbienceVolume(float NewAmbienceVolume)
 	);
 }
 
-void USoundSystem::SetBGMVolume(float NewBgmVolume)
+void UGMTK_SoundSystem::SetBGMVolume(float NewBgmVolume)
 {
 	SetLevel(
 		SoundSettings->musicMixer,
@@ -118,7 +118,7 @@ void USoundSystem::SetBGMVolume(float NewBgmVolume)
 	);
 }
 
-void USoundSystem::SetSFXVolume(float NewSFXVolume)
+void UGMTK_SoundSystem::SetSFXVolume(float NewSFXVolume)
 {
 	SetLevel(
 		SoundSettings->effectsMixer,
@@ -127,7 +127,7 @@ void USoundSystem::SetSFXVolume(float NewSFXVolume)
 	);
 }
 
-void USoundSystem::SetGUIVolume(float NewGUIVolume)
+void UGMTK_SoundSystem::SetGUIVolume(float NewGUIVolume)
 {
 	SetLevel(
 		SoundSettings->userInterfaceMixer,
@@ -136,7 +136,7 @@ void USoundSystem::SetGUIVolume(float NewGUIVolume)
 	);
 }
 
-void USoundSystem::SetVoiceVolume(float NewVoiceVolume)
+void UGMTK_SoundSystem::SetVoiceVolume(float NewVoiceVolume)
 {
 	SetLevel(
 		SoundSettings->voiceMixer,
@@ -145,7 +145,7 @@ void USoundSystem::SetVoiceVolume(float NewVoiceVolume)
 	);
 }
 
-void USoundSystem::SetLevels(const FSoundLevel& NewLevels)
+void UGMTK_SoundSystem::SetLevels(const FGMTK_SoundLevel& NewLevels)
 {
 	SetMasterVolume(NewLevels.master);
 	SetAmbienceVolume(NewLevels.ambience);
@@ -155,7 +155,7 @@ void USoundSystem::SetLevels(const FSoundLevel& NewLevels)
 	SetVoiceVolume(NewLevels.voice);
 }
 
-void USoundSystem::SetLevel(const TSoftObjectPtr<class USoundSubmix>& Submix, float& Level, float NewLevel)
+void UGMTK_SoundSystem::SetLevel(const TSoftObjectPtr<class USoundSubmix>& Submix, float& Level, float NewLevel)
 {
 	Level = FMath::Clamp(NewLevel, 0.0f, 1.0f);
 
@@ -177,7 +177,7 @@ void USoundSystem::SetLevel(const TSoftObjectPtr<class USoundSubmix>& Submix, fl
 		);
 }
 
-void USoundSystem::HandleWorldLoaded(UWorld* NewWorld)
+void UGMTK_SoundSystem::HandleWorldLoaded(UWorld* NewWorld)
 {
 	if (
 		!NewWorld ||

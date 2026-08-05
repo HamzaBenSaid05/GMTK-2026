@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 UENUM(BlueprintType)
-enum class AudioSpatialization : uint8
+enum class GMTK_AudioSpatialization : uint8
 {
 	TwoD,
 	ThreeDs
