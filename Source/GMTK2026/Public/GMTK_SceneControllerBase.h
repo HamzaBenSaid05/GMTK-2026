@@ -65,7 +65,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Scene")
 	FOnSceneFailed OnSceneFailed;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Scene")
 	TObjectPtr<class ULevelSequencePlayer> ActiveSequencePlayer;
 
 	// Called when the player interacts with an object
