@@ -65,6 +65,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Scene")
 	FOnSceneFailed OnSceneFailed;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	TObjectPtr<class ULevelSequencePlayer> ActiveSequencePlayer;
+
 	// Called when the player interacts with an object
 	UFUNCTION(BlueprintCallable, Category = "Scene")
 	void HandleInteraction(FGameplayTag ActionID);
@@ -74,9 +77,6 @@ protected:
 
 	void PlaySequenceForEvent(FGameplayTag EventTag);
 	
-	UPROPERTY()
-	TObjectPtr<class ULevelSequencePlayer> ActiveSequencePlayer;
-
 private:
 	FGameplayTagContainer ActionTags;
 };

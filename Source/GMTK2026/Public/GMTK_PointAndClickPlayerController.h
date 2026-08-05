@@ -59,6 +59,9 @@ protected:
 	void ShowHoverImage();
 	void HideHoverImage();
 	
+	UFUNCTION(BlueprintCallable, Category="PointAndClick|Input")
+	void TogglePlayerControllerInput(bool bIsEnabled);
+
 private:
 	AGMTK_InteractableActor* TraceUnderCursor() const;
 	
@@ -68,8 +71,6 @@ private:
 	UPROPERTY()
 	APlayerController* PC;
 		
-	UFUNCTION()
-	void TogglePlayerControllerInput(bool bIsEnabled);
 
 	bool bInputEnabled = true;
 	
