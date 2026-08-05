@@ -23,6 +23,7 @@ void UGMTK_FinalNotesWidget::NativeConstruct()
 		PlayerNote->bIsCorrectWish = true;
 		PlayerNote->SetNoteEnabled(Flow ? !Flow->HasUnburnedNotes() : false);
 		PlayerNote->OnNoteBurnResult.AddDynamic(this, &UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult);
+		PlayerNote->SetSceneMaterial(PlayerNoteMaterial);
 
 		if (LighterWidget)
 		{
@@ -70,13 +71,13 @@ void UGMTK_FinalNotesWidget::SpawnUnburnedSceneNotes()
 		if (!Note)
 		{
 			continue;
-		}	
-		Note->WishTextBlock->SetText(FText::FromName(Scene.WishText));
+		}
+		if (Note->WishTextBlock)
+			Note->WishTextBlock->SetText(FText::FromName(Scene.WishText));
 		Note->WishID = WishID;
 		Note->bIsCorrectWish = Scene.bIsCompleted;
 		Note->OnNoteBurnResult.AddDynamic(this, &UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult);
-		Note->SceneNoteMaterial = TargetSlot->SceneNoteMaterial;
-		
+		Note->SetSceneMaterial(TargetSlot->SceneNoteMaterial);
 		TargetSlot->SetContent(Note);
 
 		SceneNotes.AddUnique(Note);

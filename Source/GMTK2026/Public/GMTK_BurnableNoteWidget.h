@@ -51,6 +51,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Note")
 	void ResetNote();
 
+	UFUNCTION(BlueprintCallable, Category = "Note")
+	void SetSceneMaterial(UMaterialInstance* Material);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Note")
+	void SetNoteSceneBrush(UMaterialInstance* Material);
+	
 	// Toggle note enabled/disabled 
 	UFUNCTION(BlueprintCallable, Category = "Note")
 	void SetNoteEnabled(bool bEnabled);
