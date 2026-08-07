@@ -5,6 +5,7 @@
 #include "GMTK_GameFlowManager.h"
 #include "GTMK_NameSlotNote.h"
 #include "Blueprint/WidgetTree.h"
+#include "Components/Image.h"
 #include "Components/NamedSlot.h"
 #include "Components/TextBlock.h"
 
@@ -78,6 +79,7 @@ void UGMTK_FinalNotesWidget::SpawnUnburnedSceneNotes()
 		Note->bIsCorrectWish = Scene.bIsCompleted;
 		Note->OnNoteBurnResult.AddDynamic(this, &UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult);
 		Note->SetSceneMaterial(TargetSlot->SceneNoteMaterial);
+		
 		TargetSlot->SetContent(Note);
 
 		SceneNotes.AddUnique(Note);
@@ -111,6 +113,13 @@ void UGMTK_FinalNotesWidget::HandleSceneNoteBurnResult(bool bWasCorrect, FGamepl
 
 	if (AreAllSceneNotesBurned())
 	{
+		for (UGMTK_BurnableNoteWidget* Note : SceneNotes)
+		{
+			if (Note)
+			{
+				Note->SetNoteEnabled(false);
+			}
+		}
 		if (PlayerNote)
 		{
 			PlayerNote->SetNoteEnabled(true);

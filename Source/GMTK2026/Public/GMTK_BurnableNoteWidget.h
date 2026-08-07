@@ -63,7 +63,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Note")
 	TObjectPtr<UMaterialInstance> SceneNoteMaterial;
-	
+
 protected:
 	virtual void NativeConstruct() override;
 
