@@ -23,6 +23,5 @@ void AGMTK_InteractableActor::Interact()
 	if (OwningSceneController && ActionID.IsValid())
 	{
 		OwningSceneController->HandleInteraction(ActionID);
-		Destroy(this);
 	}
 }

@@ -22,7 +22,7 @@ void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
 {
 	UE_LOG(LogTemp, Log, TEXT("SceneControllerBase::HandleInteraction: ActionID = %s"), *ActionID.ToString());
 
-	if (!SceneProgress.SceneData || SceneProgress.bIsCompleted || ActionTags.HasTagExact(ActionID)) { return; }
+	if (!SceneProgress.SceneData || SceneProgress.bIsCompleted /*|| ActionTags.HasTagExact(ActionID)*/) { return; }
 
 	FSceneTransitionRow Row;
 	if (!SceneProgress.SceneData->FindTransition(SceneProgress.CurrentState, ActionID, Row))
@@ -40,7 +40,7 @@ void AGMTK_SceneControllerBase::HandleInteraction(FGameplayTag ActionID)
 	PlaySequenceForEvent(Row.EventTag);
 
 	// Add tag to prevent repeated actions
-	ActionTags.AddTag(ActionID);
+	//ActionTags.AddTag(ActionID);
 
 	if (Row.bIsFailure) { OnSceneFailed.Broadcast(Row.EventTag); }
 
