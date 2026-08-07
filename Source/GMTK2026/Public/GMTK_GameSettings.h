@@ -17,6 +17,6 @@ public:
 	TArray<TSoftObjectPtr<UWorld>> GameLevels;
 
 	// Final Level to load after all game levels are completed!
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
+	UPROPERTY(Config, EditAnywhere, Category = "Levels")
 	TSoftObjectPtr<UWorld> FinalLevel;
 };
