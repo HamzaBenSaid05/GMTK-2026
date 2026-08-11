@@ -41,7 +41,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> WishTextBlock;
 
-	UPROPERTY(BlueprintAssignable, Category = "Note")
+	UPROPERTY(BlueprintAssignable,BlueprintCallable, Category = "Note")
 	FOnNoteBurnResult OnNoteBurnResult;
 
 	// Called every frame by LighterWidget based on geometric check 

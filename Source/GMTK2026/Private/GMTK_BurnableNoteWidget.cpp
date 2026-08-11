@@ -108,7 +108,7 @@ void UGMTK_BurnableNoteWidget::SetFlameOverlapping(bool bOverlapping, float Delt
 	if (CurrentBurnTime >= RequiredBurnTime)
 	{
 		bIsBurned = true;
-		OnNoteBurnResult.Broadcast(true,WishID, bIsPlayerWishNote);
+		//OnNoteBurnResult.Broadcast(true,WishID, bIsPlayerWishNote);
 		OnBurnSuccessVisual();
 	}
 }
