@@ -48,11 +48,12 @@ void AGMTK_PointAndClickPlayerController::BeginPlay()
 	{
 		HoverWidget = CreateWidget<UUserWidget>(this, HoverWidgetClass);
 
-		if(HoverWidget)
+		if (HoverWidget)
 		{
 			HoverWidget->AddToViewport();
+			HoverWidget->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
 			HoverWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
+		}		
 	}
 
 	// Bind to game mode timer event to toggle input
@@ -167,7 +168,7 @@ void AGMTK_PointAndClickPlayerController::PlayerTick(float DeltaTime)
 
 				ProjectWorldLocationToScreen(WorldLocation, ScreenPosition);
 
-				HoverWidget->SetPositionInViewport(ScreenPosition, false);
+				HoverWidget->SetPositionInViewport(ScreenPosition, true);
 				
 				DrawDebugSphere(
 				                GetWorld(),
